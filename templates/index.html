@@ -1,3 +1,50 @@
-<DOCTYPE html>
-    <h2>Index</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BugHound - Bug Tracking System</title>
+    <link href="{{ url_for('static', filename='css/style.css') }}"> 
+</head>
+<body>
+
+<header>
+    <h1>Bug Hound - Bug Tracking System</h1>
+    <nav>
+        <ul>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#getting-started">Getting Started</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+</header>
+
+<section id="features">
+    <h2>Features</h2>
+    <ul>
+        <li>Submit and track bugs</li>
+        <li>Assign bugs to team members</li>
+        <li>Track bug status and progress</li>
+        <li>Generate bug reports</li>
+    </ul>
+</section>
+
+<section id="getting-started">
+    <h2>Getting Started</h2>
+    <p>To start using BugHound, sign up for an account or log in if you already have one. Once logged in, you can start submitting bugs and tracking their status.</p>
+    <a href="{{ url_for('login') }}">Login</a> <!-- Replace with actual login page --> 
+    <a href="signup.html">Sign Up</a> <!-- Replace with actual signup page -->
+</section>
+
+<section id="contact">
+    <h2>Contact Us</h2>
+    <p>Email: support@bughound.com</p>
+    <p>Phone: 123-456-7890</p>
+</section>
+
+<footer>
+    <p>&copy; 2024 BugHound. All rights reserved.</p>
+</footer>
+
+</body>
 </html>
