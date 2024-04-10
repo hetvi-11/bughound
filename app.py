@@ -1,19 +1,19 @@
-from flask import Flask, render_template, request, flash
 import mysql.connector
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 
 app = Flask(__name__)
 app.secret_key = 'secret'  # Replace with your secret key
-
+app.debug = True
 # Database configuration
 db_config = {
     'host': 'localhost',
     'database': 'bughound',  # Replace with your database name
-    'user': 'root',     # Replace with your username
-    'password': 'password'  # Replace with your password
+    'user': 'root'     # Replace with your username
 }
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def login():
+  
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -30,13 +30,22 @@ def login():
         conn.close()
 
         if user:
-            # Login successful
-            return 'Login Successful'
+            # login successful
+            print("login successful")
+            session['logged_in'] = True  # Set a session variable
+            return redirect(url_for('home'))
+
         else:
             # Login failed
             flash('Invalid username or password')
 
     return render_template('login.html')
+
+@app.route('/home')
+def home():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    return render_template('home.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
