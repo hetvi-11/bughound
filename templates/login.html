@@ -11,6 +11,11 @@
   </head>
   <body>
     <div class="login-container">
+      <!-- Display Flash Messages -->
+      {% for message in get_flashed_messages() %}
+      <div style="color: red">{{ message }}</div>
+      {% endfor %}
+
       <form action="/" method="post">
         <h2>Login</h2>
         <input type="text" name="username" placeholder="Username" required />

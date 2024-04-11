@@ -7,7 +7,7 @@ app.debug = True
 # Database configuration
 db_config = {
     'host': 'localhost',
-    'database': 'bughound',  # Replace with your database name
+    'database': 'bughound-project',  # Replace with your database name
     'user': 'root'     # Replace with your username
 }
 
@@ -22,7 +22,7 @@ def login():
         cursor = conn.cursor()
 
         # Replace 'users' with your actual table name
-        query = "SELECT * FROM employees WHERE username = %s AND password = %s"
+        query = "SELECT * FROM users WHERE username = %s AND password = %s"
         cursor.execute(query, (username, password))
 
         user = cursor.fetchone()
@@ -37,6 +37,7 @@ def login():
 
         else:
             # Login failed
+            print("login unsuccessful")
             flash('Invalid username or password')
 
     return render_template('login.html')
