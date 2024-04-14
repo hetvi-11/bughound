@@ -3,7 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bug Report Form</title>
+    <title>
+      {% if bug %}Edit Bug Report{% else %}Create Bug Report{% endif %}
+    </title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -139,14 +141,16 @@
     </header>
 
     <div class="container">
-      <form method="POST" action="{{ url_for('submit_report') }}">
+      <form
+        method="POST"
+        action="{{ url_for('report', bug_id=bug.bug_id if bug else None) }}"
+      >
         <h2>General Information</h2>
         <div class="form-section">
           <label for="program">Program:</label>
           <select id="program" name="program" required>
             {% for program_id, program_name in programs %}
-            <option value="{{ program_id }}">{{ program_name }}</option>
-
+            <option value="{{ program_id }}" {% if bug and bug.program_id == program_id %}selected{% endif %}>{{ program_name }}</option>
             {% endfor %}
           </select>
         </div>
@@ -154,42 +158,43 @@
         <div class="form-section">
           <label for="bug_type">Report Type:</label>
           <select id="bug_type" name="bug_type" required>
-            <option value="bug">Coding Error</option>
-            <option value="issue">Design Issue</option>
-            <option value="Suggestion">Suggestion</option>
-            <option value="Documentation">Documentation</option>
-            <option value="Hardware">Hardware</option>
-            <option value="Query">Query</option>
-          </select>
+        {% for type_value, type_name in report_types %}
+        <option value="{{ type_value }}" {% if bug and bug.bug_type == type_value %}selected{% endif %}>
+            {{ type_name }}
+        </option>
+        {% endfor %}
+    </select>
         </div>
 
         <div class="form-section">
           <label for="severity">Severity:</label>
           <select id="severity" name="severity" required>
-            <option value="Minor">Minor</option>
-            <option value="Serious">Serious</option>
-            <option value="Fatal">Fatal</option>
-          </select>
+        {% for severity_value, severity_name in severity_levels %}
+        <option value="{{ severity_value }}" {% if bug and bug.severity == severity_value %}selected{% endif %}>
+            {{ severity_name }}
+        </option>
+        {% endfor %}
+    </select>
         </div>
 
         <div class="form-section">
           <label for="problem-summary">Problem Summary:</label>
           <input
-            type="text"
-            id="problem-summary"
-            name="problem-summary"
-            required
-          />
+        type="text"
+        id="problem-summary"
+        name="problem-summary"
+        required
+        value="{{ bug.problem_summary if bug else '' }}"
+    />
         </div>
 
         <div class="form-section">
           <label for="description">Problem:</label>
-          <textarea
-            id="description"
-            name="description"
-            rows="4"
-            required
-          ></textarea>
+              <textarea
+                id="description"
+                name="description"
+                rows="4"
+                required>{{ bug.description if bug else '' }}</textarea>
         </div>
 
         <div class="form-section">
@@ -198,27 +203,27 @@
         </div>
 
         <div class="form-section">
-          <input type="checkbox" id="reproducible" name="reproducible" />
           <label class="checkbox-label" for="reproducible">Reproducible</label>
+          <input type="checkbox" id="reproducible" name="reproducible" {% if bug and bug.reproducible %}checked{% endif %} />
         </div>
 
         <div class="form-section">
           <label for="suggested-fix">Suggested Fix:</label>
-          <textarea id="suggested-fix" name="suggested-fix" rows="4"></textarea>
+          <textarea id="suggested-fix" name="suggested-fix" rows="4">{{ bug.suggested_fix if bug else '' }}</textarea>
         </div>
 
         <div class="form-section">
           <label for="reported-by">Reported By:</label>
           <select id="reported-by" name="reported-by" required>
             {% for user in users %}
-            <option value="{{ user[0] }}">{{ user[0] }}</option>
-            {% endfor %}
+        <option value="{{ user[0] }}" {% if bug and bug.reported_by == user[0] %}selected{% endif %}>{{ user[0] }}</option>
+        {% endfor %}
           </select>
         </div>
 
         <div class="form-section">
           <label for="report-date">Report Date:</label>
-          <input type="date" id="report-date" name="report-date" required />
+         <input type="date" id="report-date" name="report-date" required />
         </div>
         {% if level > 1 %}
         <h2>Additional Information</h2>
@@ -321,9 +326,9 @@
         </div>
         {% endif %}
         <div class="button-group">
-          <button type="submit">Submit</button>
-          <button type="reset">Reset</button>
-          <a href="{{ url_for('home') }}" class="button">Cancel</a>
+          <button type="submit">{% if bug %}Update{% else %}Submit{% endif %}</button>
+      <button type="reset">Reset</button>
+      <a href="{{ url_for('home') }}" class="button">Cancel</a>
         </div>
       </form>
     </div>
