@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bug Report Form</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f2f2f2;
+      }
+      header {
+        background-color: #1976d2;
+        color: white;
+        padding: 20px;
+        text-align: center;
+        overflow: hidden; /* Added */
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      form {
+        padding: 20px;
+        border-radius: 5px;
+        box-sizing: border-box;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      input[type="text"],
+      select,
+      textarea {
+        width: calc(100% - 22px);
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+        outline: none;
+      }
+      input[type="file"] {
+        margin-top: 5px;
+      }
+      .checkbox-label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: normal;
+      }
+      button {
+        width: 120px;
+        padding: 10px;
+        margin-right: 10px;
+        background-color: #1976d2;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+      button:hover {
+        background-color: #1565c0;
+      }
+      .button-group {
+        text-align: center;
+        margin-top: 20px;
+      }
+      .tab {
+        overflow: hidden;
+        border-bottom: 1px solid #ccc;
+        background-color: #f1f1f1;
+      }
+      .tab button {
+        background-color: inherit;
+        float: left;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        padding: 14px 16px;
+        transition: background-color 0.3s ease;
+      }
+      .tab button:hover {
+        background-color: #ddd;
+      }
+      .tab button.active {
+        background-color: #ccc;
+      }
+      .user-info {
+        float: right;
+        margin-top: 10px;
+        margin-right: 20px;
+        color: #1976d2;
+      }
+      .logout-btn {
+        background-color: #1976d2;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        font-size: 16px;
+      }
+      .username {
+        background-color: #1976d2;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        font-size: 16px;
+      }
+      .logout-btn:hover {
+        background-color: #1565c0;
+        padding: 10px 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Bug Tracking Dashboard</h1>
+      <div class="user-info">
+        {% if session.logged_in %}
+        <a href="{{ url_for('home') }}" class="login-btn">Home</a>
+        <button class="username">{{ user_name }}</button>
+        <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+        {% else %}
+        <a href="{{ url_for('login') }}" class="login-btn">Login</a>
+        {% endif %}
+      </div>
+    </header>
+
+    <div class="container">
+      <form method="POST" action="{{ url_for('submit_report') }}">
+        <h2>General Information</h2>
+        <div class="form-section">
+          <label for="program">Program:</label>
+          <select id="program" name="program" required>
+            {% for program_id, program_name in programs %}
+            <option value="{{ program_id }}">{{ program_name }}</option>
+
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-section">
+          <label for="bug_type">Report Type:</label>
+          <select id="bug_type" name="bug_type" required>
+            <option value="bug">Coding Error</option>
+            <option value="issue">Design Issue</option>
+            <option value="Suggestion">Suggestion</option>
+            <option value="Documentation">Documentation</option>
+            <option value="Hardware">Hardware</option>
+            <option value="Query">Query</option>
+          </select>
+        </div>
+
+        <div class="form-section">
+          <label for="severity">Severity:</label>
+          <select id="severity" name="severity" required>
+            <option value="Minor">Minor</option>
+            <option value="Serious">Serious</option>
+            <option value="Fatal">Fatal</option>
+          </select>
+        </div>
+
+        <div class="form-section">
+          <label for="problem-summary">Problem Summary:</label>
+          <input
+            type="text"
+            id="problem-summary"
+            name="problem-summary"
+            required
+          />
+        </div>
+
+        <div class="form-section">
+          <label for="description">Problem:</label>
+          <textarea
+            id="description"
+            name="description"
+            rows="4"
+            required
+          ></textarea>
+        </div>
+
+        <div class="form-section">
+          <label for="attachments">Attachments:</label>
+          <input type="file" id="attachments" name="attachments" multiple />
+        </div>
+
+        <div class="form-section">
+          <input type="checkbox" id="reproducible" name="reproducible" />
+          <label class="checkbox-label" for="reproducible">Reproducible</label>
+        </div>
+
+        <div class="form-section">
+          <label for="suggested-fix">Suggested Fix:</label>
+          <textarea id="suggested-fix" name="suggested-fix" rows="4"></textarea>
+        </div>
+
+        <div class="form-section">
+          <label for="reported-by">Reported By:</label>
+          <select id="reported-by" name="reported-by" required>
+            {% for user in users %}
+            <option value="{{ user[0] }}">{{ user[0] }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-section">
+          <label for="report-date">Report Date:</label>
+          <input type="date" id="report-date" name="report-date" required />
+        </div>
+        {% if level > 1 %}
+        <h2>Additional Information</h2>
+        <div class="form-section">
+          <label for="area">Functional area:</label>
+          <select id="area" name="area" required>
+            {% for area_id, area_name in areas %}
+            <option value="{{ area_id }}">{{ area_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-section">
+          <label for="assigned-to">Assigned to:</label>
+          <select id="assigned-to" name="assigned-to" required>
+            {% for user in users %}
+            <option value="{{ user[0] }}">{{ user[0] }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-section">
+          <label for="comments">Comments:</label>
+          <textarea id="comments" name="comments" rows="4"></textarea>
+        </div>
+
+        <div class="form-section">
+          <label for="status">Status:</label>
+          <select id="status" name="status">
+            <option value="open">Open</option>
+            <option value="closed">Closed</option>
+            <option value="in-progress">In Progress</option>
+          </select>
+        </div>
+
+        <div class="form-section">
+          <label for="priority">Priority:</label>
+          <select id="priority" name="priority">
+            <option value="1">1. Fix Immediately</option>
+            <option value="2">2. Fix as soon as possible</option>
+            <option value="3">3. Fix before next milestone</option>
+            <option value="4">4. Fix before release</option>
+            <option value="5">5. Fix if possible</option>
+            <option value="6">6. Optional</option>
+          </select>
+        </div>
+
+        <div class="form-section">
+          <label for="resolution">Resolution:</label>
+          <select id="resolution" name="resolution">
+            <option value="Pending">Pending</option>
+            <option value="Fixed">Fixed</option>
+            <option value="Cannot be reproduced">Cannot be reproduced</option>
+            <option value="Deferred">Deferred</option>
+            <option value="As designed">As designed</option>
+            <option value="Withdrawn by reporter">Withdrawn by reporter</option>
+            <option value="Need more info">Need more info</option>
+            <option value="Disagree with suggestion">
+              Disagree with suggestion
+            </option>
+            <option value="Duplicate">Duplicate</option>
+          </select>
+        </div>
+
+        <div class="form-section">
+          <label for="resolution-version">Resolution Version:</label>
+          <select id="resolution-version" name="resolution-version">
+            <option value="version1">Version 1</option>
+            <option value="version2">Version 2</option>
+            <option value="version3">Version 3</option>
+          </select>
+        </div>
+
+        <div class="form-section">
+          <label for="resolved-by">Resolved By:</label>
+          <select id="resolved-by" name="resolved-by">
+            {% for user in users %}
+            <option value="{{ user[0] }}">{{ user[0] }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-section">
+          <label for="resolved-date">Resolved Date:</label>
+          <input type="date" id="resolved-date" name="resolved-date" />
+        </div>
+
+        <div class="form-section">
+          <label for="tested-by">Tested By:</label>
+          <select id="tested-by" name="tested-by" required>
+            {% for user in users %}
+            <option value="{{ user[0] }}">{{ user[0] }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-section">
+          <label for="tested-date">Tested Date:</label>
+          <input type="date" id="tested-date" name="tested-date" />
+        </div>
+        {% endif %}
+        <div class="button-group">
+          <button type="submit">Submit</button>
+          <button type="reset">Reset</button>
+          <a href="{{ url_for('home') }}" class="button">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>

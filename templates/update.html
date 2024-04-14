@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>All Bug Reports</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: "Roboto", sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f2f2f2;
+      }
+      header {
+        background-color: #1976d2;
+        color: white;
+        padding: 20px;
+        text-align: center;
+      }
+      .container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        border-bottom: 1px solid #ccc;
+        padding: 15px;
+        text-align: left;
+      }
+      th {
+        background-color: #1976d2;
+        color: white;
+      }
+      .edit-btn {
+        cursor: pointer;
+        color: #1976d2;
+        transition: color 0.3s ease;
+        background: none;
+        border: none;
+      }
+      .edit-btn:hover {
+        color: #033874;
+      }
+
+      .top-buttons {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .username,
+      .logout-btn,
+      .home-btn {
+        background-color: #1976d2;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        font-size: 16px;
+      }
+      .username:hover,
+      .logout-btn:hover,
+      .home-btn:hover {
+        background-color: #1565c0;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>All Bug Reports</h1>
+      <div class="user-info">
+        {% if session.logged_in %}
+        <a href="{{ url_for('home') }}" class="login-btn">Home</a>
+        <button class="username">{{ user_name }}</button>
+        <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+        {% else %}
+        <a href="{{ url_for('login') }}" class="login-btn">Login</a>
+        {% endif %}
+      </div>
+    </header>
+
+    <div class="container">
+      <table>
+        <thead>
+          <tr>
+            <th>Bug ID</th>
+            <th>Description</th>
+            <th>Assigned User</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for bug in bug_reports %}
+          <tr>
+            <td>{{ bug['bug_id'] }}</td>
+            <td>{{ bug['description'] }}</td>
+            <td>{{ bug['assigned_user'] }}</td>
+            <td>{{ bug['priority'] }}</td>
+            <td>{{ bug['status'] }}</td>
+            <td>
+              <!-- <button
+                class="edit-btn"
+                onclick="location.href='{{ url_for('edit_report', bug_id=bug['bug_id']) }}'"
+              >
+                <i class="fas fa-pencil-alt"></i>
+              </button> -->
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>
