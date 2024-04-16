@@ -144,6 +144,7 @@
       <form
         method="POST"
         action="{{ url_for('report', bug_id=bug.bug_id if bug else None) }}"
+        enctype="multipart/form-data"
       >
         <h2>General Information</h2>
         <div class="form-section">
@@ -346,6 +347,7 @@
       <a href="{{ url_for('home') }}" class="button">Cancel</a>
         </div>
       </form>
+      
     </div>
   </body>
 </html>
