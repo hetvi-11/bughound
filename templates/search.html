@@ -96,6 +96,7 @@
 </head>
 <body>
 
+<<<<<<< HEAD
 <header>
     <h1>Search Bug Report</h1>
     <div class="user-info">
@@ -108,6 +109,20 @@
         {% endif %}
       </div>
 </header>
+=======
+    <header>
+        <h1>Search Bug Report</h1>
+        <div class="user-info">
+          {% if session.logged_in %}
+          <a href="{{ url_for('home') }}" class="login-btn">Home</a>
+          <button class="username">{{ user_name }}</button>
+          <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+          {% else %}
+          <a href="{{ url_for('login') }}" class="login-btn">Login</a>
+          {% endif %}
+        </div>
+    </header>
+>>>>>>> 66aa56433c7539105a7133c9d90df2a49c633b93
 
 <div class="container">
     <form action="{{ url_for('search_reports_result') }}" method="post">

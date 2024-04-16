@@ -2,6 +2,8 @@ import datetime
 import mysql.connector
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from datetime import date
+from werkzeug.utils import secure_filename
+
 
 app = Flask(__name__)
 app.secret_key = 'secret'  # Replace with your secret key
@@ -53,7 +55,8 @@ def logout():
 def home():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
-    return render_template('home.html', user_name=session.get('user_name'))
+    level = session.get('level', 0)
+    return render_template('home.html', level=level, user_name=session.get('user_name'))
 
 @app.route('/create')
 def create_report():
@@ -174,35 +177,121 @@ def report(bug_id):
 
     return render_template('report.html', bug=bug, programs=programs, users=users, areas=areas, level = level, report_types=report_types, severity_levels=severity_levels, user_name=session.get('user_name'))
 
+def save_attachment_to_database(bug_id, filename, data, cursor):
+    sql = """
+    INSERT INTO attachment (bug_id, file_name, data)
+    VALUES (%s, %s, %s)
+    """
+    cursor.execute(sql, (bug_id, filename, data))
+
+def allowed_file(filename):
+    # Check the file extension if needed
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+
+
 def submit_or_update_report(form, bug_id=None):
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
-    level = session.get('level', 0)
-    data = (
+
+    # Prepare data fields
+    date_resolved = form.get('resolved-date') or None
+    report_date = form.get('report-date') or datetime.date.today().isoformat()
+
+    # Base data list
+    data = [
         form.get('program'), form.get('bug_type'), form.get('severity'), form.get('problem-summary'),
         form.get('description'), '1' if form.get('reproducible') == 'on' else '0',
-        form.get('suggested-fix'), form.get('reported-by'), form.get('report-date') or datetime.date.today().isoformat(),
-        form.get('status'), form.get('assigned-to'), form.get('comments'), form.get('resolved-date') or None, form.get('priority'),
-        form.get('tested-by'), form.get('tested-date'), form.get('area'), form.get('resolution'), form.get('resolution-version'), form.get('resolved-by')
-    )
+        form.get('suggested-fix'), form.get('reported-by'), report_date,
+        form.get('status'), form.get('assigned-to'), form.get('comments'), date_resolved, form.get('priority'),
+        form.get('tested-by'), form.get('tested-date'), form.get('area'), form.get('resolution'), 
+        form.get('resolution-version'), form.get('resolved-by')
+    ]
 
     if bug_id is None:
+        # Insert new bug report
         sql = """INSERT INTO `bug-report` (program_id, bug_type, severity, problem_summary, description, reproducible, suggested_fix,
                  reported_by, date_created, status, assigned_user, comments, date_resolved, priority, tested_by, date_tested, area_id, resolution, resolution_version, resolved_by)
                  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+        
+        cursor.execute(sql, data)
+        
+        bug_id = cursor.lastrowid  # Get the last inserted id
     else:
+        # Update existing bug report
+        data.append(bug_id)  # Append bug_id at the end for WHERE condition
         sql = """UPDATE `bug-report` SET program_id=%s, bug_type=%s, severity=%s, problem_summary=%s, description=%s, 
                  reproducible=%s, suggested_fix=%s, reported_by=%s, date_created=%s, status=%s, assigned_user=%s, comments=%s,
                  date_resolved=%s, priority=%s, tested_by=%s, date_tested=%s, area_id=%s, resolution=%s, resolution_version=%s, resolved_by=%s WHERE bug_id=%s"""
-        data += (bug_id,)
+        cursor.execute(sql, data)
+        
 
-    cursor.execute(sql, data)
+    # Handle attachments if present
+    if 'attachments' in request.files:
+        files = request.files.getlist('attachments')
+        for file in files:
+            if file and allowed_file(file.filename):  # Ensure it's a valid file type
+                filename = secure_filename(file.filename)
+                file_data = file.read()  # Read the file binary data
+                
+                d = [bug_id, filename, file_data]
+                print(d)
+                sql = """INSERT INTO attachment (bug_id, file_name, data) VALUES (%s, %s, %s)"""
+                
+                try:
+                    cursor.execute(sql, d)
+                    print("query is working")
+                except Exception as e:
+                        print("Failed to insert data:", e)
+                        # Optionally, re-raise the exception or handle it as needed
+                        raise
+                
     conn.commit()
     cursor.close()
     conn.close()
 
     flash('Report submitted successfully!' if bug_id is None else 'Report updated successfully!')
     return redirect(url_for('home'))
+
+
+# def submit_or_update_report(form, bug_id=None):
+#     conn = mysql.connector.connect(**db_config)
+#     cursor = conn.cursor()
+
+#     data = (
+#         form.get('program'), form.get('bug_type'), form.get('severity'), form.get('problem-summary'),
+#         form.get('description'), '1' if form.get('reproducible') == 'on' else '0',
+#         form.get('suggested-fix'), form.get('reported-by'), form.get('report-date') or datetime.date.today().isoformat(),
+#         form.get('status'), form.get('assigned-to'), form.get('comments'), form.get('resolved-date') or None, form.get('priority'),
+#         form.get('tested-by'), form.get('tested-date'), form.get('area'), form.get('resolution'), form.get('resolution-version'), form.get('resolved-by')
+#     )
+
+#     if bug_id is None:
+#         sql = """INSERT INTO `bug-report` (program_id, bug_type, severity, problem_summary, description, reproducible, suggested_fix,
+#                  reported_by, date_created, status, assigned_user, comments, date_resolved, priority, tested_by, date_tested, area_id, resolution, resolution_version, resolved_by)
+#                  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+        
+#         if 'attachments' in request.files:
+#             files = request.files.getlist('attachments')
+#             for file in files:
+#                 if file and allowed_file(file.filename):  # Ensure it's a valid file type
+#                     filename = secure_filename(file.filename)
+#                     file_data = file.read()  # Read the file binary data
+#                     save_attachment_to_database(bug_id, filename, file_data, cursor)
+#     else:
+#         sql = """UPDATE `bug-report` SET program_id=%s, bug_type=%s, severity=%s, problem_summary=%s, description=%s, 
+#                  reproducible=%s, suggested_fix=%s, reported_by=%s, date_created=%s, status=%s, assigned_user=%s, comments=%s,
+#                  date_resolved=%s, priority=%s, tested_by=%s, date_tested=%s, area_id=%s, resolution=%s, resolution_version=%s, resolved_by=%s WHERE bug_id=%s"""
+#         data += (bug_id,)
+
+#     cursor.execute(sql, data)
+#     conn.commit()
+#     cursor.close()
+#     conn.close()
+
+#     flash('Report submitted successfully!' if bug_id is None else 'Report updated successfully!')
+#     return redirect(url_for('home'))
 
 
 def fetch_lookups(cursor):
@@ -368,23 +457,19 @@ def submit_or_update_program(form, program_id=None):
 def submit_or_update_area(form, area_id=None):
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
-    
     data = (
         form.get('program'), form.get('functional-area')
     )
-
     if area_id is None:
         sql = """INSERT INTO `functional-area` (program_id, name)
                  VALUES (%s, %s)"""
     else:
         sql = """UPDATE `functional-area` SET program_id=%s, name=%s WHERE area_id=%s"""
         data += (area_id,)
-
     cursor.execute(sql, data)
     conn.commit()
     cursor.close()
     conn.close()
-
     flash('Functional area submitted successfully!' if area_id is None else 'Functional area updated successfully!')
     return redirect(url_for('functional_area'))
 
@@ -448,6 +533,59 @@ def delete_func_area(area_id):
 
     return redirect(url_for('functional_area'))
 
+# @app.route('/delete_bug/<int:bug_id>', methods=['POST'])
+# def delete_bug(bug_id):
+#     if not session.get('logged_in'):
+#         return redirect(url_for('login'))
+
+#     conn = mysql.connector.connect(**db_config)
+#     cursor = conn.cursor()
+#     try:
+#         cursor.execute("DELETE FROM `bug-report` WHERE bug_id = %s", (bug_id,))
+#         conn.commit()
+#         flash('Bug report deleted successfully!')
+#     except Exception as e:
+#         flash(f"Error deleting bug report: {str(e)}", 'error')
+#         conn.rollback()
+#     finally:
+#         cursor.close()
+#         conn.close()
+#     return redirect(url_for('all_bugs'))
+
+
+@app.route('/delete_bug', defaults={'bug_id': None}, methods=['GET', 'POST'])
+@app.route('/delete_bug/<int:bug_id>', methods=['POST'])
+def delete_bug(bug_id):
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
+    try:
+        cursor.execute("DELETE FROM `bug-report` WHERE bug_id = %s", (bug_id,))
+        conn.commit()
+        flash('Bug report deleted successfully!')
+    except Exception as e:
+        flash(f"Error deleting bug report: {str(e)}", 'error')
+        conn.rollback()
+    finally:
+        cursor.close()
+        conn.close()
+    return redirect(url_for('delete'))
+
+@app.route('/delete')
+def delete():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM `bug-report`")
+    bugs = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    return render_template('delete.html', bugs=bugs, user_name=session.get('user_name'))
 
 
 @app.route('/search')
@@ -478,14 +616,11 @@ def search_reports():
         ('Serious', 'Serious'),
         ('Fatal', 'Fatal')
     ]
-    return render_template('search.html', level=level,  user_name=session.get('user_name'), programs = programs, users = users, areas = areas, report_types=report_types, severity_levels=severity_levels)
-
+    return render_template('search.html', level=level, user_name=session.get('user_name'), programs = programs, users = users, areas = areas, report_types=report_types, severity_levels=severity_levels)
 
 
 @app.route('/search', methods=['POST'])
 def search_reports_result():
-    # Retrieve search parameters from the form data
-    
 
     report_types = [
         ('bug', 'Coding Error'),
