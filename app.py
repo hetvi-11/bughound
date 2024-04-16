@@ -53,7 +53,8 @@ def logout():
 def home():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
-    return render_template('home.html', user_name=session.get('user_name'))
+    level = session.get('level', 0)
+    return render_template('home.html', level=level, user_name=session.get('user_name'))
 
 @app.route('/create')
 def create_report():
@@ -368,23 +369,19 @@ def submit_or_update_program(form, program_id=None):
 def submit_or_update_area(form, area_id=None):
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
-    
     data = (
         form.get('program'), form.get('functional-area')
     )
-
     if area_id is None:
         sql = """INSERT INTO `functional-area` (program_id, name)
                  VALUES (%s, %s)"""
     else:
         sql = """UPDATE `functional-area` SET program_id=%s, name=%s WHERE area_id=%s"""
         data += (area_id,)
-
     cursor.execute(sql, data)
     conn.commit()
     cursor.close()
     conn.close()
-
     flash('Functional area submitted successfully!' if area_id is None else 'Functional area updated successfully!')
     return redirect(url_for('functional_area'))
 
@@ -448,6 +445,59 @@ def delete_func_area(area_id):
 
     return redirect(url_for('functional_area'))
 
+# @app.route('/delete_bug/<int:bug_id>', methods=['POST'])
+# def delete_bug(bug_id):
+#     if not session.get('logged_in'):
+#         return redirect(url_for('login'))
+
+#     conn = mysql.connector.connect(**db_config)
+#     cursor = conn.cursor()
+#     try:
+#         cursor.execute("DELETE FROM `bug-report` WHERE bug_id = %s", (bug_id,))
+#         conn.commit()
+#         flash('Bug report deleted successfully!')
+#     except Exception as e:
+#         flash(f"Error deleting bug report: {str(e)}", 'error')
+#         conn.rollback()
+#     finally:
+#         cursor.close()
+#         conn.close()
+#     return redirect(url_for('all_bugs'))
+
+
+@app.route('/delete_bug', defaults={'bug_id': None}, methods=['GET', 'POST'])
+@app.route('/delete_bug/<int:bug_id>', methods=['POST'])
+def delete_bug(bug_id):
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
+    try:
+        cursor.execute("DELETE FROM `bug-report` WHERE bug_id = %s", (bug_id,))
+        conn.commit()
+        flash('Bug report deleted successfully!')
+    except Exception as e:
+        flash(f"Error deleting bug report: {str(e)}", 'error')
+        conn.rollback()
+    finally:
+        cursor.close()
+        conn.close()
+    return redirect(url_for('delete'))
+
+@app.route('/delete')
+def delete():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM `bug-report`")
+    bugs = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    return render_template('delete.html', bugs=bugs, user_name=session.get('user_name'))
 
 
 @app.route('/search')
@@ -484,8 +534,6 @@ def search_reports():
 
 @app.route('/search', methods=['POST'])
 def search_reports_result():
-    # Retrieve search parameters from the form data
-    
 
     report_types = [
         ('bug', 'Coding Error'),

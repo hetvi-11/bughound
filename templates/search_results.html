@@ -120,7 +120,10 @@
             <td>{{ bug[11] }}</td>
             <td>{{ bug[3] }}</td>
             <td>
-              <button class="edit-btn">
+              <button
+                class="edit-btn"
+                onclick="location.href='{{ url_for('report', bug_id=bug[0]) }}';"
+              >
                 <i class="far fa-eye"></i>
               </button>
             </td>

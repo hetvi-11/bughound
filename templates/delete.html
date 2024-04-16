@@ -87,16 +87,27 @@
   <body>
     <header>
       <h1>All Bug Reports</h1>
-      <div class="top-buttons">
-        <button class="home-btn">Home</button>
-        <div>
-          <button class="username">User Name</button>
-          <button class="logout-btn">Logout</button>
-        </div>
+      <div class="user-info">
+        {% if session.logged_in %}
+        <a href="{{ url_for('home') }}" class="login-btn">Home</a>
+        <button class="username">{{ user_name }}</button>
+        <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+        {% else %}
+        <a href="{{ url_for('login') }}" class="login-btn">Login</a>
+        {% endif %}
       </div>
     </header>
 
     <div class="container">
+      <div class="flash-messages">
+        {% with messages = get_flashed_messages() %} {% if messages %}
+        <ul class="flashes">
+          {% for message in messages %}
+          <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %} {% endwith %}
+      </div>
       <table>
         <thead>
           <tr>
@@ -109,31 +120,26 @@
           </tr>
         </thead>
         <tbody>
+          {% for bug in bugs %}
           <tr>
-            <td>1</td>
-            <td>Issue with login functionality</td>
-            <td>John Doe</td>
-            <td>High</td>
-            <td>Open</td>
+            <td>{{ bug.bug_id }}</td>
+            <td>{{ bug.description }}</td>
+            <td>{{ bug.assigned_user }}</td>
+            <td>{{ bug.priority }}</td>
+            <td>{{ bug.status }}</td>
             <td>
-              <button class="delete-btn">
-                <i class="fas fa-trash-alt"></i>
-              </button>
+              <form
+                action="{{ url_for('delete_bug', bug_id=bug.bug_id) }}"
+                method="post"
+                onsubmit="return confirm('Are you sure you want to delete this bug?');"
+              >
+                <button type="submit" class="delete-btn">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </form>
             </td>
           </tr>
-          <tr>
-            <td>2</td>
-            <td>UI layout issue on dashboard</td>
-            <td>Jane Smith</td>
-            <td>Medium</td>
-            <td>Closed</td>
-            <td>
-              <button class="delete-btn">
-                <i class="fas fa-trash-alt"></i>
-              </button>
-            </td>
-          </tr>
-          <!-- Add more bug report items as needed -->
+          {% endfor %}
         </tbody>
       </table>
     </div>

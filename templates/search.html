@@ -109,16 +109,18 @@
 </head>
 <body>
 
-<header>
-    <h1>Search Bug Report</h1>
-    <div class="top-buttons">
-        <button class="home-btn">Home</button>
-        <div>
-            <button class="username">Username</button>
-            <button class="logout-btn">Logout</button>
+    <header>
+        <h1>Search Bug Report</h1>
+        <div class="user-info">
+          {% if session.logged_in %}
+          <a href="{{ url_for('home') }}" class="login-btn">Home</a>
+          <button class="username">{{ user_name }}</button>
+          <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+          {% else %}
+          <a href="{{ url_for('login') }}" class="login-btn">Login</a>
+          {% endif %}
         </div>
-    </div>
-</header>
+    </header>
 
 <div class="container">
     <form action="{{ url_for('search_reports_result') }}" method="post">

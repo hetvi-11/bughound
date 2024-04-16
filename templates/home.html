@@ -115,9 +115,11 @@
         <a href="{{ url_for('update_bug_report') }}"
           >Update Existing Bug Report</a
         >
-        <a href="/delete">Delete Bug Report</a>
         <a href="{{ url_for('search_reports') }}">Search Bug Report</a>
+        {% if level > 1 %}
+        <a href="{{ url_for('delete') }}">Delete Bug Report</a>
         <a href="{{ url_for('subdashboard_page') }}">DB Maintenance</a>
+        {% endif %}
       </div>
     </div>
   </body>
