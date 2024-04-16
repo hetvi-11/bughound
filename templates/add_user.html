@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      {% if user %}Edit User{% else %}Create User{% endif %}
+    </title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f2f2f2;
+      }
+      header {
+        background-color: #1976d2;
+        color: white;
+        padding: 20px;
+        text-align: center;
+        overflow: hidden; /* Added */
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      form {
+        padding: 20px;
+        border-radius: 5px;
+        box-sizing: border-box;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      input[type="text"],
+      select,
+      textarea {
+        width: calc(100% - 22px);
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+        outline: none;
+      }
+      input[type="file"] {
+        margin-top: 5px;
+      }
+      .checkbox-label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: normal;
+      }
+      button {
+        width: 120px;
+        padding: 10px;
+        margin-right: 10px;
+        background-color: #1976d2;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        align-items: center;
+      }
+     
+      .button-group {
+        text-align: center;
+        margin-top: 20px;
+        align-items: center;
+    
+      }
+      .tab {
+        overflow: hidden;
+        border-bottom: 1px solid #ccc;
+        background-color: #f1f1f1;
+      }
+      .tab button {
+        background-color: inherit;
+        float: left;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        padding: 14px 16px;
+        transition: background-color 0.3s ease;
+        align-items: center;
+      }
+      .tab button:hover {
+        background-color: #ddd;
+      }
+      .tab button.active {
+        background-color: #ccc;
+      }
+      .user-info {
+        float: right;
+        margin-top: 10px;
+        margin-right: 20px;
+        color: #1976d2;
+      }
+      .logout-btn {
+        background-color: #1976d2;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        font-size: 16px;
+      }
+      .username {
+        background-color: #1976d2;
+        color: white;
+        border: none;
+        border-radius: 5px;
+       
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        font-size: 16px;
+      }
+      .logout-btn:hover , .username:hover {
+        background-color: #1565c0;
+        padding: 10px 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      {% if user %}<h1>Edit User Details</h1>{% else %}<h1>Add User</h1>{% endif %}
+      <div class="user-info">
+        {% if session.logged_in %}
+        <button type="button" onclick=" homeAction()" class="logout-btn">Home</a>
+        <button class="username">{{ user_name }}</button>
+        <button type="button" onclick="logoutAction()"class="logout-btn">Logout</a>
+        {% else %}
+        <a href="{{ url_for('login') }}" class="login-btn">Login</a>
+        {% endif %}
+      </div>
+    </header>
+
+    <div class="container">
+      <form
+      method="POST"
+      action="{{ url_for('adduser', user_id=user.user_id if user else None) }}"
+    > 
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input
+                type="text"
+                id="username"
+                name="username"
+                required
+                value="{{ user.username if user else '' }}"
+            />
+            </div>
+            <div class="form-group">
+                <label for="level">Level:</label>
+                <select id="level" name="level">
+                  <option value="1" {% if user and user.level == 1 %}selected{% endif %}>1</option>
+                  <option value="2" {% if user and user.level == 2 %}selected{% endif %}>2</option>
+                  <option value="3" {% if user and user.level == 3 %}selected{% endif %}>3</option>
+                </select>
+            </div>
+            <div class="form-group">
+              <label for="password">Password:</label>
+              <input
+              type="text"
+              id="password"
+              name="password"
+              required
+              value="{{ user.password if user else '' }}"
+          />
+          </div>
+          <button type="submit">{% if user %}Update{% else %}Submit{% endif %}</button>
+          </form>
+
+        <script>
+          
+
+          function logoutAction() {
+            window.location.href = "{{ url_for('login') }}";
+          }
+
+          function homeAction() {
+            window.location.href = "{{ url_for('home') }}";
+          }
+        </script>
+
+    </div>
+  </body>
+</html>

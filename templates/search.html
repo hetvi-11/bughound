@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bug Report Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+        header {
+            background-color: #1976d2;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            overflow: hidden; /* Added */
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        form {
+            padding: 20px;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        select,
+        textarea {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            outline: none;
+        }
+        input[type="file"] {
+            margin-top: 5px;
+        }
+        .checkbox-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: normal;
+        }
+        button {
+            width: 120px;
+            padding: 10px;
+            margin-right: 10px;
+            background-color: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #1565c0;
+        }
+        .button-group {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .top-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .username, .logout-btn {
+            background-color: #1976d2;
+            display: inline-block;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 16px;
+        }
+        .logout-btn:hover {
+            background-color: #1565c0;
+            padding: 10px 20px;
+        }
+        .home-btn {
+            background-color: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 16px;
+            margin-right: auto; /* Adjusted */
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Search Bug Report</h1>
+    <div class="top-buttons">
+        <button class="home-btn">Home</button>
+        <div>
+            <button class="username">Username</button>
+            <button class="logout-btn">Logout</button>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <form action="{{ url_for('search_reports_result') }}" method="post">
+       
+        <div class="form-section">
+            <label for="program">Program:</label>
+            <select id="program" name="program" >
+                <option value="">Select Program</option> <!-- Empty default option -->
+                {% for program_id, program_name in programs %}
+            <option value="{{ program_id }}" {% if bug and bug.program_id == program_id %}selected{% endif %}>{{ program_name }}</option>
+            {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-section">
+            <label for="report-type">Report Type:</label>
+            <select id="report-type" name="report-type" >
+                <option value="">Select Report Type</option>
+                {% for type_value, type_name in report_types %}
+                <option value="{{ type_value }}" {% if request.form.get('report-type') == type_value %}selected{% endif %}>
+                    {{ type_name }}
+                </option>
+            {% endfor %}
+        <!-- <option value="{{ type_value }}" {% if bug and bug.bug_type == type_value %}selected{% endif %}> -->
+        </select>
+        </div>
+        <div class="form-section">
+            <label for="severity">Severity:</label>
+            <select id="severity" name="severity" >
+                <option value="">Select Severity</option> 
+                    {% for severity_value, severity_name in severity_levels %}
+                    <option value="{{ severity_value }}" {% if bug and bug.severity == severity_value %}selected{% endif %}>
+                        {{ severity_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+    
+            <div class="form-section">
+                <label for="functional-area">Functional-Area:</label>
+                <select id="functional-area" name="functional-area" >
+                    <option value="">Select Functional-Area</option> 
+                    {% for area_id, area_name in areas %}
+                <option value="{{ area_id }}">{{ area_name }}</option>
+                {% endfor %}
+                </select>
+            </div>
+    
+            <div class="form-section">
+                <label for="assigned-to">Assigned-to:</label>
+                <select id="assigned-to" name="assigned-to" >
+                <option value="">Select Assigned User</option> 
+                    {% for user in users %}
+                <option value="{{ user[0] }}">{{ user[0] }}</option>
+                {% endfor %}
+                </select>
+            </div>
+    
+            <div class="form-section">
+                <label for="status">Status:</label>
+                <select id="status" name="status" >
+                    <option value="">Select Status</option> 
+                    <option value="open">Open</option>
+                <option value="closed">Closed</option>
+                <option value="in-progress">In Progress</option>
+                </select>
+            </div>
+    
+        
+
+            <div class="form-section">
+                <label for="priority">Priority:</label>
+                <select id="priority" name="priority" >
+                    <option value="">Select Priority</option> 
+                    <option value="1">1. Fix Immediately</option>
+                    <option value="2">2. Fix as soon as possible</option>
+                    <option value="3">3. Fix before next milestone</option>
+                    <option value="4">4. Fix before release</option>
+                    <option value="5">5. Fix if possible</option>
+                    <option value="6">6. Optional</option>
+    
+                </select>
+            </div>
+    
+            <div class="form-section">
+                <label for="resolution">Resolution:</label>
+                <select id="resolution" name="resolution">
+                <option value="">Select Resolution</option> 
+                  <option value="Pending">Pending</option>
+                  <option value="Fixed">Fixed</option>
+                  <option value="Cannot be reproduced">Cannot be reproduced</option>
+                  <option value="Deferred">Deferred</option>
+                  <option value="As designed">As designed</option>
+                  <option value="Withdrawn by reporter">Withdrawn by reporter</option>
+                  <option value="Need more info">Need more info</option>
+                  <option value="Disagree with suggestion">
+                    Disagree with suggestion
+                  </option>
+                  <option value="Duplicate">Duplicate</option>
+                </select>
+              </div>
+    
+
+
+              <div class="form-section">
+                <label for="reported-by">Reported-by:</label>
+                <select id="reported-by" name="reported-by" >
+                    <option value="">Select Reported-by</option> 
+                     {% for user in users %}
+                <option value="{{ user[0] }}">{{ user[0] }}</option>
+                {% endfor %}
+                </select>
+            </div>
+    
+            
+    
+            <div class="form-section">
+                <label for="report-date">Reported Date:</label>
+                <input type="date" id="reported-date" name="reported-date">
+            </div>
+    
+            <div class="form-section">
+              
+                <label for="resolved-by">Resolved-by:</label>
+                <select id="resolved-by" name="resolved-by" >
+                    <option value="">Select Resolved-By</option> 
+                    {% for user in users %}
+                <option value="{{ user[0] }}">{{ user[0] }}</option>
+                {% endfor %}
+                </select>
+            </div>
+    
+
+
+
+
+
+
+        </div>
+        <div class="button-group">
+            <button type="search">Search</button>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

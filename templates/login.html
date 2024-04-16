@@ -3,19 +3,85 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/style.css') }}"
-    />
     <title>Login</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f2f2f2;
+      }
+      header {
+        background-color: #1976d2;
+        color: white;
+        padding: 20px;
+        text-align: center;
+        overflow: hidden; /* Added */
+      }
+      .login-container {
+        max-width: 400px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      form {
+        padding: 20px;
+        border-radius: 5px;
+        box-sizing: border-box;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      input[type="text"],
+      input[type="password"] {
+        width: calc(100% - 22px);
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+        outline: none;
+      }
+      button {
+        width: 50%;
+        padding: 10px;
+        background-color: #1976d2;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin: 0 auto; /* Center align */
+        display: block; /* Ensure button is a block element */
+        text-align: center; /* Center align text within the button */
+      }
+      button:hover {
+        background-color: #1565c0;
+      }
+      .welcome-heading {
+        margin-bottom: 20px;
+        font-size: 24px;
+      }
+      h2 {
+        text-align: center; /* Center align the login heading */
+        margin-bottom: 20px;
+      }
+    </style>
   </head>
   <body>
+    <header>
+      <h1>Welcome to BugHound - A Bug Tracking System</h1>
+    </header>
+
     <div class="login-container">
       <!-- Display Flash Messages -->
       {% for message in get_flashed_messages() %}
       <div style="color: red">{{ message }}</div>
       {% endfor %}
-
       <form action="/login" method="post">
         <h2>Login</h2>
         <input type="text" name="username" placeholder="Username" required />

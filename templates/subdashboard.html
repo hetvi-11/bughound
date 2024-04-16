@@ -98,7 +98,7 @@
   </head>
   <body>
     <header>
-      <h1>Bug Tracking Dashboard</h1>
+      <h1>Maintenance Tab</h1>
       <div class="user-info">
         {% if session.logged_in %}
         <button class="username">{{ user_name }}</button>
@@ -110,15 +110,12 @@
     </header>
 
     <div class="container">
-      <div class="dashboard-options">
-        <a href="{{ url_for('create_report') }}">Create New Bug Report</a>
-        <a href="{{ url_for('update_bug_report') }}"
-          >Update Existing Bug Report</a
-        >
-        <a href="/delete">Delete Bug Report</a>
-        <a href="{{ url_for('search_reports') }}">Search Bug Report</a>
-        <a href="{{ url_for('subdashboard_page') }}">DB Maintenance</a>
-      </div>
+      <div class="container">
+        <div class="dashboard-options">
+          <a href="{{ url_for('functional_area') }}">Functional-Area</a>
+          <a href="{{ url_for('program') }}">Program</a>
+          <a href="{{ url_for('user') }}">Users</a>
+        </div>
     </div>
   </body>
 </html>

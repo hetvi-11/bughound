@@ -104,25 +104,24 @@
             <th>Bug ID</th>
             <th>Description</th>
             <th>Assigned User</th>
+            <th>Reported Date</th>
             <th>Priority</th>
             <th>Status</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {% for bug in bug_reports %}
+          {% for bug in second_results %}
           <tr>
-            <td>{{ bug['bug_id'] }}</td>
-            <td>{{ bug['description'] }}</td>
-            <td>{{ bug['assigned_user'] }}</td>
-            <td>{{ bug['priority'] }}</td>
-            <td>{{ bug['status'] }}</td>
+            <td>{{ bug[0] }}</td>
+            <td>{{ bug[1] }}</td>
+            <td>{{ bug[8] }}</td>
+            <td>{{ bug[5] }}</td>
+            <td>{{ bug[11] }}</td>
+            <td>{{ bug[3] }}</td>
             <td>
-              <button
-                class="edit-btn"
-                onclick="location.href='{{ url_for('report', bug_id=bug['bug_id']) }}';"
-              >
-                <i class="fas fa-pencil-alt"></i>
+              <button class="edit-btn">
+                <i class="far fa-eye"></i>
               </button>
             </td>
           </tr>

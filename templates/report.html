@@ -128,7 +128,7 @@
   </head>
   <body>
     <header>
-      <h1>Bug Tracking Dashboard</h1>
+      {% if bug %}<h1>Edit Bug Report</h1>{% else %}<h1>Create Bug Report</h1>{% endif %}
       <div class="user-info">
         {% if session.logged_in %}
         <a href="{{ url_for('home') }}" class="login-btn">Home</a>
@@ -149,8 +149,10 @@
         <div class="form-section">
           <label for="program">Program:</label>
           <select id="program" name="program" required>
-            {% for program_id, program_name in programs %}
-            <option value="{{ program_id }}" {% if bug and bug.program_id == program_id %}selected{% endif %}>{{ program_name }}</option>
+            {% for program in programs %}
+            <option value="{{ program['program_id'] }}" {% if bug and bug.program_id == program['program_id'] %}selected{% endif %}>
+                {{ program['program_name'] }}
+            </option>
             {% endfor %}
           </select>
         </div>
@@ -216,22 +218,28 @@
           <label for="reported-by">Reported By:</label>
           <select id="reported-by" name="reported-by" required>
             {% for user in users %}
-        <option value="{{ user[0] }}" {% if bug and bug.reported_by == user[0] %}selected{% endif %}>{{ user[0] }}</option>
-        {% endfor %}
+            <option value="{{ user['username'] }}" {% if bug and bug.reported_by == user['username'] %}selected{% endif %}>
+              {{ user['username'] }}
+            </option>
+            {% endfor %}
           </select>
         </div>
 
         <div class="form-section">
           <label for="report-date">Report Date:</label>
-         <input type="date" id="report-date" name="report-date" required />
+         <input type="date" id="report-date" name="report-date" required
+           value="{{ bug.date_created if bug else today }}">
         </div>
+
         {% if level > 1 %}
         <h2>Additional Information</h2>
         <div class="form-section">
           <label for="area">Functional area:</label>
           <select id="area" name="area" required>
-            {% for area_id, area_name in areas %}
-            <option value="{{ area_id }}">{{ area_name }}</option>
+            {% for area in areas %}
+            <option value="{{ area['area_id'] }}" {% if bug and bug.area_id == area['area_id'] %}selected{% endif %}>
+                {{ area['name'] }}
+            </option>
             {% endfor %}
           </select>
         </div>
@@ -240,60 +248,61 @@
           <label for="assigned-to">Assigned to:</label>
           <select id="assigned-to" name="assigned-to" required>
             {% for user in users %}
-            <option value="{{ user[0] }}">{{ user[0] }}</option>
+            <option value="{{ user['username'] }}" {% if bug and bug.assigned_user == user['username'] %}selected{% endif %}>
+              {{ user['username'] }}
+            </option>
             {% endfor %}
           </select>
         </div>
 
         <div class="form-section">
           <label for="comments">Comments:</label>
-          <textarea id="comments" name="comments" rows="4"></textarea>
+          <textarea id="comments" name="comments" rows="4">{{ bug.comments if bug else '' }}</textarea>
         </div>
 
         <div class="form-section">
           <label for="status">Status:</label>
           <select id="status" name="status">
-            <option value="open">Open</option>
-            <option value="closed">Closed</option>
-            <option value="in-progress">In Progress</option>
+            <option value="open" {% if bug and bug.status == 'open' %}selected{% endif %}>Open</option>
+            <option value="closed" {% if bug and bug.status == 'closed' %}selected{% endif %}>Closed</option>
+            <option value="in-progress" {% if bug and bug.status == 'in-progress' %}selected{% endif %}>In Progress</option>
           </select>
         </div>
 
         <div class="form-section">
           <label for="priority">Priority:</label>
-          <select id="priority" name="priority">
-            <option value="1">1. Fix Immediately</option>
-            <option value="2">2. Fix as soon as possible</option>
-            <option value="3">3. Fix before next milestone</option>
-            <option value="4">4. Fix before release</option>
-            <option value="5">5. Fix if possible</option>
-            <option value="6">6. Optional</option>
-          </select>
+         <select id="priority" name="priority">
+        <option value="1" {% if bug and bug.priority == 1 %}selected{% endif %}>1. Fix Immediately</option>
+        <option value="2" {% if bug and bug.priority == 2 %}selected{% endif %}>2. Fix as soon as possible</option>
+        <option value="3" {% if bug and bug.priority == 3 %}selected{% endif %}>3. Fix before next milestone</option>
+        <option value="4" {% if bug and bug.priority == 4 %}selected{% endif %}>4. Fix before release</option>
+        <option value="5" {% if bug and bug.priority == 5 %}selected{% endif %}>5. Fix if possible</option>
+        <option value="6" {% if bug and bug.priority == 6 %}selected{% endif %}>6. Optional</option>
+    </select>
         </div>
 
         <div class="form-section">
           <label for="resolution">Resolution:</label>
           <select id="resolution" name="resolution">
-            <option value="Pending">Pending</option>
-            <option value="Fixed">Fixed</option>
-            <option value="Cannot be reproduced">Cannot be reproduced</option>
-            <option value="Deferred">Deferred</option>
-            <option value="As designed">As designed</option>
-            <option value="Withdrawn by reporter">Withdrawn by reporter</option>
-            <option value="Need more info">Need more info</option>
-            <option value="Disagree with suggestion">
-              Disagree with suggestion
-            </option>
-            <option value="Duplicate">Duplicate</option>
-          </select>
+        <option value="Pending" {% if bug and bug.resolution == 'Pending' %}selected{% endif %}>Pending</option>
+        <option value="Fixed" {% if bug and bug.resolution == 'Fixed' %}selected{% endif %}>Fixed</option>
+        <option value="Cannot be reproduced" {% if bug and bug.resolution == 'Cannot be reproduced' %}selected{% endif %}>Cannot be reproduced</option>
+        <option value="Deferred" {% if bug and bug.resolution == 'Deferred' %}selected{% endif %}>Deferred</option>
+        <option value="As designed" {% if bug and bug.resolution == 'As designed' %}selected{% endif %}>As designed</option>
+        <option value="Withdrawn by reporter" {% if bug and bug.resolution == 'Withdrawn by reporter' %}selected{% endif %}>Withdrawn by reporter</option>
+        <option value="Need more info" {% if bug and bug.resolution == 'Need more info' %}selected{% endif %}>Need more info</option>
+        <option value="Disagree with suggestion" {% if bug and bug.resolution == 'Disagree with suggestion' %}selected{% endif %}>Disagree with suggestion</option>
+        <option value="Duplicate" {% if bug and bug.resolution == 'Duplicate' %}selected{% endif %}>Duplicate</option>
+    </select>
+
         </div>
 
         <div class="form-section">
           <label for="resolution-version">Resolution Version:</label>
           <select id="resolution-version" name="resolution-version">
-            <option value="version1">Version 1</option>
-            <option value="version2">Version 2</option>
-            <option value="version3">Version 3</option>
+            <option value="1" {% if bug and bug.resolution_version == 1 %}selected{% endif %}>Version 1</option>
+            <option value="2" {% if bug and bug.resolution_version == 2 %}selected{% endif %}>Version 2</option>
+            <option value="3" {% if bug and bug.resolution_version == 3 %}selected{% endif %}>Version 3</option>
           </select>
         </div>
 
@@ -301,28 +310,34 @@
           <label for="resolved-by">Resolved By:</label>
           <select id="resolved-by" name="resolved-by">
             {% for user in users %}
-            <option value="{{ user[0] }}">{{ user[0] }}</option>
+            <option value="{{ user['username'] }}" {% if bug and bug.resolved_by == user['username'] %}selected{% endif %}>
+              {{ user['username'] }}
+            </option>
             {% endfor %}
           </select>
         </div>
 
         <div class="form-section">
           <label for="resolved-date">Resolved Date:</label>
-          <input type="date" id="resolved-date" name="resolved-date" />
+          <input type="date" id="resolved-date" name="resolved-date"
+           value="{{ bug.date_resolved if bug and bug.date_resolved else '' }}">
         </div>
 
         <div class="form-section">
           <label for="tested-by">Tested By:</label>
           <select id="tested-by" name="tested-by" required>
-            {% for user in users %}
-            <option value="{{ user[0] }}">{{ user[0] }}</option>
+          {% for user in users %}
+            <option value="{{ user['username'] }}" {% if bug and bug.tested_by == user['username'] %}selected{% endif %}>
+              {{ user['username'] }}
+            </option>
             {% endfor %}
           </select>
         </div>
 
         <div class="form-section">
           <label for="tested-date">Tested Date:</label>
-          <input type="date" id="tested-date" name="tested-date" />
+           <input type="date" id="tested-date" name="tested-date"
+           value="{{ bug.date_tested if bug and bug.date_tested else '' }}">
         </div>
         {% endif %}
         <div class="button-group">
