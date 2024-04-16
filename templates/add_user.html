@@ -57,19 +57,7 @@
         margin-bottom: 10px;
         font-weight: normal;
       }
-      button {
-        width: 120px;
-        padding: 10px;
-        margin-right: 10px;
-        background-color: #1976d2;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-        align-items: center;
-      }
-     
+      
       .button-group {
         text-align: center;
         margin-top: 20px;
@@ -103,30 +91,25 @@
         margin-right: 20px;
         color: #1976d2;
       }
-      .logout-btn {
+      
+      .username,
+      .logout-btn,
+      .home-btn , .below-btn  {
         background-color: #1976d2;
         color: white;
+        width: 120px;
         border: none;
-        border-radius: 5px;
-        
+        padding: 10px ;
         cursor: pointer;
         transition: background-color 0.3s ease;
         font-size: 16px;
       }
-      .username {
-        background-color: #1976d2;
-        color: white;
-        border: none;
-        border-radius: 5px;
-       
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-        font-size: 16px;
-      }
-      .logout-btn:hover , .username:hover {
+      .username:hover,
+      .logout-btn:hover,
+      .home-btn:hover {
         background-color: #1565c0;
-        padding: 10px 20px;
       }
+
     </style>
   </head>
   <body>
@@ -176,7 +159,9 @@
               value="{{ user.password if user else '' }}"
           />
           </div>
-          <button type="submit">{% if user %}Update{% else %}Submit{% endif %}</button>
+          <div class="button-group">
+          <button type="submit" class="below-btn">{% if user %}Update{% else %}Submit{% endif %}</button>
+          </div>
           </form>
 
         <script>

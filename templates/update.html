@@ -3,36 +3,33 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
     <title>All Bug Reports</title>
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
-    />
+
     <style>
       body {
-        font-family: "Roboto", sans-serif;
+        font-family: "Arial", sans-serif;
         margin: 0;
         padding: 0;
         background-color: #f2f2f2;
       }
-      header {
+       header {
         background-color: #1976d2;
         color: white;
         padding: 20px;
         text-align: center;
+        overflow: hidden; /* Added */
       }
       .container {
         max-width: 800px;
-        margin: 20px auto;
+        margin: 0 auto;
         padding: 20px;
         background-color: #fff;
         border-radius: 10px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
+      
       table {
         width: 100%;
         border-collapse: collapse;
@@ -64,14 +61,15 @@
         align-items: center;
         margin-bottom: 20px;
       }
+          
       .username,
       .logout-btn,
       .home-btn {
         background-color: #1976d2;
         color: white;
+        width: 120px;
         border: none;
-        border-radius: 5px;
-        padding: 10px 20px;
+        padding: 10px ;
         cursor: pointer;
         transition: background-color 0.3s ease;
         font-size: 16px;
@@ -81,6 +79,14 @@
       .home-btn:hover {
         background-color: #1565c0;
       }
+      
+
+      .user-info {
+        float: right; 
+        margin-top: 10px;
+        margin-right: 20px;
+        color: #1976d2;
+      }
     </style>
   </head>
   <body>
@@ -88,9 +94,9 @@
       <h1>All Bug Reports</h1>
       <div class="user-info">
         {% if session.logged_in %}
-        <a href="{{ url_for('home') }}" class="login-btn">Home</a>
+         <button type="button" onclick=" homeAction()" class="home-btn">Home</a>
         <button class="username">{{ user_name }}</button>
-        <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+        <button type="button" onclick=" logoutAction()" class="logout-btn">Logout</a>
         {% else %}
         <a href="{{ url_for('login') }}" class="login-btn">Login</a>
         {% endif %}
@@ -131,4 +137,14 @@
       </table>
     </div>
   </body>
+  <script> 
+
+    function logoutAction() {
+      window.location.href = "{{ url_for('login') }}";
+    }
+
+    function homeAction() {
+      window.location.href = "{{ url_for('home') }}";
+    }
+  </script>
 </html>

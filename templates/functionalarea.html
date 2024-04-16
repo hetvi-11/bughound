@@ -3,18 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+
     <title>All Functional Areas</title>
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
-    />
     <style>
-      body {
-        font-family: "Roboto", sans-serif;
+       body {
+        font-family: Arial, sans-serif;
         margin: 0;
         padding: 0;
         background-color: #f2f2f2;
@@ -34,6 +29,7 @@
         border-radius: 10px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
+      
       table {
         width: 100%;
         border-collapse: collapse;
@@ -55,24 +51,21 @@
         background: none;
         border: none;
       }
-      .edit-btn:hover , .delete-btn:hover {
-        color: #033874;
+      
+      .button-group {
+        text-align: center;
+        margin-top: 20px;
       }
 
-      .top-buttons {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-      }
+     
       .username,
       .logout-btn,
-      .home-btn {
+      .home-btn  {
         background-color: #1976d2;
         color: white;
+        width: 120px;
         border: none;
-        border-radius: 5px;
-        padding: 10px 20px;
+        padding: 10px ;
         cursor: pointer;
         transition: background-color 0.3s ease;
         font-size: 16px;
@@ -82,29 +75,29 @@
       .home-btn:hover {
         background-color: #1565c0;
       }
-      button {
-            width: 200px;
-            padding: 10px;
-            margin-right: 10px;
-            background-color: #1976d2;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        
-        .button-group {
-            text-align: center;
-            margin-top: 20px;
-        }
 
-        .user-info {
-  float: right; /* Change from "float: left" to "float: right" */
-  margin-top: 10px;
-  margin-right: 20px;
-  color: #1976d2;
-}
+      .below-btn{
+        background-color: #1976d2;
+        color: white;
+        width: 200px;
+        border: none;
+        padding: 10px ;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        font-size: 16px;
+      }
+      
+
+      .user-info {
+        float: right; 
+        margin-top: 10px;
+        margin-right: 20px;
+        color: #1976d2;
+      }
+
+     
+      
+      
 
     </style>
   </head>
@@ -122,6 +115,10 @@
       </div>
     </header>
 
+<div class="button-group">
+         <button type="button" onclick=" subdashAction()" class="below-btn">Back to Maintenance Tab</button>
+        <button type="button" class = "below-btn" onclick="location.href='{{ url_for('addfuncarea') }}';">Add Functional-Area</button>
+    </div>
     <div class="container">
         <div class="flash-messages">
             {% with messages = get_flashed_messages() %}
@@ -153,8 +150,7 @@
             <td>
               <button
                 class="edit-btn"
-                onclick="location.href='{{ url_for('addfuncarea', area_id=area['area_id']) }}';"
-              >
+                onclick="location.href='{{ url_for('addfuncarea', area_id=area['area_id']) }}';">
                 <i class="fas fa-pencil-alt"></i>
               </button>
             </td>
@@ -170,16 +166,13 @@
         </tbody>
         
       </table>
-
-      <div class="button-group">
-        <button type="add" onclick="location.href='{{ url_for('addfuncarea') }}';">Add Functional-Area</button>
-    </div>
-    </div>
-
+</div>
+      
+    
   </body>
   <script>
-    function cancelAction() {
-      window.location.href = "{{ url_for('home') }}";
+    function subdashAction() {
+      window.location.href = "{{ url_for('subdashboard_page') }}";
     }
 
     function logoutAction() {

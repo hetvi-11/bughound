@@ -582,9 +582,43 @@ def search_reports_result():
     
 
     # Pass the results to a new template for displaying the search results
-    return render_template('search_results.html', second_results=second_results, report_types=report_types, severity_levels=severity_levels)
+    return render_template('search_results.html', user_name=session.get('user_name'),second_results=second_results, report_types=report_types, severity_levels=severity_levels)
 
 
+
+@app.route('/delete_bug', defaults={'bug_id': None}, methods=['GET', 'POST'])
+@app.route('/delete_bug/<int:bug_id>', methods=['POST'])
+def delete_bug(bug_id):
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
+    try:
+        cursor.execute("DELETE FROM bug-report WHERE bug_id = %s", (bug_id,))
+        conn.commit()
+        flash('Bug report deleted successfully!')
+    except Exception as e:
+        flash(f"Error deleting bug report: {str(e)}", 'error')
+        conn.rollback()
+    finally:
+        cursor.close()
+        conn.close()
+    return redirect(url_for('delete'))
+
+@app.route('/delete')
+def delete():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM `bug-report`")
+    bugs = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    return render_template('delete.html', bugs=bugs, user_name=session.get('user_name'))
 
 if __name__ == '__main__':
     app.run(debug=True)

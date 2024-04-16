@@ -57,18 +57,7 @@
         margin-bottom: 10px;
         font-weight: normal;
       }
-      button {
-        width: 120px;
-        padding: 10px;
-        margin-right: 10px;
-        background-color: #1976d2;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-        align-items: center;
-      }
+     
      
       .button-group {
         text-align: center;
@@ -103,29 +92,23 @@
         margin-right: 20px;
         color: #1976d2;
       }
-      .logout-btn {
+      
+      .username,
+      .logout-btn,
+      .home-btn , .below-btn {
         background-color: #1976d2;
         color: white;
+        width: 120px;
         border: none;
-        border-radius: 5px;
-        
+        padding: 10px ;
         cursor: pointer;
         transition: background-color 0.3s ease;
         font-size: 16px;
       }
-      .username {
-        background-color: #1976d2;
-        color: white;
-        border: none;
-        border-radius: 5px;
-       
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-        font-size: 16px;
-      }
-      .logout-btn:hover , .username:hover {
+      .username:hover,
+      .logout-btn:hover,
+      .home-btn:hover , button:hover {
         background-color: #1565c0;
-        padding: 10px 20px;
       }
     </style>
   </head>
@@ -144,12 +127,9 @@
     </header>
 
     <div class="container">
-          <form
-          method="POST"
-          action="{{ url_for('addfuncarea', area_id=area.area_id if area else None) }}"
-        >    
+          <form method="POST" action="{{ url_for('addfuncarea', area_id=area.area_id if area else None) }}">    
             <div class="form-group">
-                <div class="form-group">
+              
                   <label for="program">Program Name:</label>
                   <select id="program" name="program" required>
                     {% for program in programs %}
@@ -158,32 +138,30 @@
                     </option>
                     {% endfor %}
                   </select>
-                  </div>
+            </div>
             <div class="form-group">
               <label for="functional-area">Functional Area Name:</label>
-              <input
-        type="text"
-        id="functional-area"
-        name="functional-area"
-        required
-        value="{{ area.name if area else '' }}"
-    />
-          </div>
-            <button type="submit">{% if area %}Update{% else %}Submit{% endif %}</button>
-          </form>
-          
-        <script>
-          
-
-          function logoutAction() {
-            window.location.href = "{{ url_for('login') }}";
-          }
-
-          function homeAction() {
-            window.location.href = "{{ url_for('home') }}";
-          }
-        </script>
-
+              <input type="text" 
+              id="functional-area" 
+              name="functional-area" 
+              required 
+              value="{{ area.name if area else '' }}"/>
+            </div>
+            <div class = "button-group">
+              <button type="submit" class="below-btn">{% if area %}Update{% else %}Submit{% endif %}</button>
+            </div>
+        </form>
     </div>
+
   </body>
+  <script>
+    function logoutAction() {
+      window.location.href = "{{ url_for('login') }}";
+    }
+
+    function homeAction() {
+      window.location.href = "{{ url_for('home') }}";
+    }
+  </script>
+
 </html>

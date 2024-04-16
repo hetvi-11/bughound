@@ -55,20 +55,8 @@
             margin-bottom: 10px;
             font-weight: normal;
         }
-        button {
-            width: 120px;
-            padding: 10px;
-            margin-right: 10px;
-            background-color: #1976d2;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        button:hover {
-            background-color: #1565c0;
-        }
+        
+        
         .button-group {
             text-align: center;
             margin-top: 20px;
@@ -79,45 +67,46 @@
             align-items: center;
             margin-bottom: 20px;
         }
-        .username, .logout-btn {
+        
+       
+        .user-info {
+            float: right;
+            margin-top: 10px;
+            margin-right: 20px;
+            color: #1976d2;
+          }
+          .username,
+          .logout-btn,
+          .home-btn , .below-btn {
             background-color: #1976d2;
-            display: inline-block;
             color: white;
+            width: 120px;
             border: none;
-            border-radius: 5px;
-            padding: 10px 20px;
+            padding: 10px ;
             cursor: pointer;
             transition: background-color 0.3s ease;
             font-size: 16px;
-        }
-        .logout-btn:hover {
+          }
+          .username:hover,
+          .logout-btn:hover,
+          .home-btn:hover , button:hover {
             background-color: #1565c0;
-            padding: 10px 20px;
-        }
-        .home-btn {
-            background-color: #1976d2;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 10px 20px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            font-size: 16px;
-            margin-right: auto; /* Adjusted */
-        }
+          }
     </style>
 </head>
 <body>
 
 <header>
     <h1>Search Bug Report</h1>
-    <div class="top-buttons">
-        <button class="home-btn">Home</button>
-        <div>
-            <button class="username">Username</button>
-            <button class="logout-btn">Logout</button>
-        </div>
-    </div>
+    <div class="user-info">
+        {% if session.logged_in %}
+        <button type="button" onclick=" homeAction()"  class="home-btn">Home</button>
+        <button class="username">{{ user_name }}</button>
+        <button type="button" onclick=" logoutAction()" class="logout-btn">Logout</a>
+        {% else %}
+        <a href="{{ url_for('login') }}" class="login-btn">Login</a>
+        {% endif %}
+      </div>
 </header>
 
 <div class="container">
@@ -259,10 +248,19 @@
 
         </div>
         <div class="button-group">
-            <button type="search">Search</button>
+            <button type="search" class = "below-btn">Search</button>
         </div>
     </form>
 </div>
 
 </body>
+<script>
+function logoutAction() {
+    window.location.href = "{{ url_for('login') }}";
+  }
+
+  function homeAction() {
+    window.location.href = "{{ url_for('home') }}";
+  }
+</script>
 </html>

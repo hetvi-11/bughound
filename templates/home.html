@@ -43,26 +43,7 @@
       .dashboard-options a:hover {
         background-color: #1565c0;
       }
-      .username {
-        margin-top: 20px;
-        padding: 10px;
-        background-color: #1976d2;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-      }
-      .logout {
-        margin-top: 10px;
-        padding: 10px;
-        background-color: #dc3545;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-      }
+      
 
       .user-info {
         float: right;
@@ -70,30 +51,24 @@
         margin-right: 20px;
         color: #1976d2;
       }
-      .logout-btn {
+      .username,
+      .logout-btn,
+      .home-btn {
         background-color: #1976d2;
         color: white;
+        width: 120px;
         border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        padding: 10px 20px;
-        transition: background-color 0.3s ease;
-        font-size: 16px;
-      }
-      .username {
-        background-color: #1976d2;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        padding: 10px 20px;
+        padding: 10px ;
         cursor: pointer;
         transition: background-color 0.3s ease;
         font-size: 16px;
       }
-      .logout-btn:hover {
+      .username:hover,
+      .logout-btn:hover,
+      .home-btn:hover {
         background-color: #1565c0;
-        padding: 10px 20px;
       }
+      
     </style>
   </head>
   <body>
@@ -101,8 +76,9 @@
       <h1>Bug Tracking Dashboard</h1>
       <div class="user-info">
         {% if session.logged_in %}
+
         <button class="username">{{ user_name }}</button>
-        <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+        <button type="button" onclick=" logoutAction()" class="logout-btn">Logout</a>
         {% else %}
         <a href="{{ url_for('login') }}" class="login-btn">Login</a>
         {% endif %}
@@ -112,13 +88,16 @@
     <div class="container">
       <div class="dashboard-options">
         <a href="{{ url_for('create_report') }}">Create New Bug Report</a>
-        <a href="{{ url_for('update_bug_report') }}"
-          >Update Existing Bug Report</a
-        >
-        <a href="/delete">Delete Bug Report</a>
+        <a href="{{ url_for('update_bug_report') }}">Update Existing Bug Report</a>
+        <a href="{{ url_for('delete') }}">Delete Bug Report</a>
         <a href="{{ url_for('search_reports') }}">Search Bug Report</a>
         <a href="{{ url_for('subdashboard_page') }}">DB Maintenance</a>
       </div>
     </div>
   </body>
+  <script> 
+  function logoutAction() {
+      window.location.href = "{{ url_for('login') }}";
+    }
+</script>
 </html>

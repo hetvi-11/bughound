@@ -43,66 +43,48 @@
       .dashboard-options a:hover {
         background-color: #1565c0;
       }
-      .username {
-        margin-top: 20px;
-        padding: 10px;
-        background-color: #1976d2;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-      }
-      .logout {
-        margin-top: 10px;
-        padding: 10px;
-        background-color: #dc3545;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-      }
-
+      
+     
       .user-info {
         float: right;
         margin-top: 10px;
         margin-right: 20px;
         color: #1976d2;
       }
-      .logout-btn {
+      .username,
+      .logout-btn,
+      .home-btn , .below-btn {
         background-color: #1976d2;
         color: white;
+        width: 120px;
         border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        padding: 10px 20px;
-        transition: background-color 0.3s ease;
-        font-size: 16px;
-      }
-      .username {
-        background-color: #1976d2;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        padding: 10px 20px;
+        padding: 10px ;
         cursor: pointer;
         transition: background-color 0.3s ease;
         font-size: 16px;
       }
-      .logout-btn:hover {
+      .username:hover,
+      .logout-btn:hover,
+      .home-btn:hover , button:hover {
         background-color: #1565c0;
-        padding: 10px 20px;
       }
+      
+      .button-group {
+        text-align: center;
+        margin-top: 20px;
+      }
+      
+      
     </style>
   </head>
   <body>
     <header>
-      <h1>Maintenance Tab</h1>
+      {% if bug %}<h1>Edit Bug Report</h1>{% else %}<h1>Create Bug Report</h1>{% endif %}
       <div class="user-info">
         {% if session.logged_in %}
+        <button type="button" onclick=" homeAction()"  class="home-btn">Home</button>
         <button class="username">{{ user_name }}</button>
-        <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+        <button type="button" onclick=" logoutAction()" class="logout-btn">Logout</a>
         {% else %}
         <a href="{{ url_for('login') }}" class="login-btn">Login</a>
         {% endif %}
@@ -110,12 +92,24 @@
     </header>
 
     <div class="container">
-      <div class="container">
+      
         <div class="dashboard-options">
           <a href="{{ url_for('functional_area') }}">Functional-Area</a>
           <a href="{{ url_for('program') }}">Program</a>
           <a href="{{ url_for('user') }}">Users</a>
         </div>
     </div>
+    
   </body>
+  <script>
+
+    function logoutAction() {
+        window.location.href = "{{ url_for('login') }}";
+      }
+  
+      function homeAction() {
+        window.location.href = "{{ url_for('home') }}";
+      }
+  
+      </script>
 </html>

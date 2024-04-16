@@ -57,20 +57,8 @@
         margin-bottom: 10px;
         font-weight: normal;
       }
-      button {
-        width: 120px;
-        padding: 10px;
-        margin-right: 10px;
-        background-color: #1976d2;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-      }
-      button:hover {
-        background-color: #1565c0;
-      }
+      
+    
       .button-group {
         text-align: center;
         margin-top: 20px;
@@ -101,29 +89,24 @@
         margin-right: 20px;
         color: #1976d2;
       }
-      .logout-btn {
+      .username,
+      .logout-btn,
+      .home-btn , .below-btn {
         background-color: #1976d2;
         color: white;
+        width: 120px;
         border: none;
-        border-radius: 5px;
+        padding: 10px ;
         cursor: pointer;
         transition: background-color 0.3s ease;
         font-size: 16px;
       }
-      .username {
-        background-color: #1976d2;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        padding: 10px 20px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-        font-size: 16px;
-      }
-      .logout-btn:hover {
+      .username:hover,
+      .logout-btn:hover,
+      .home-btn:hover , button:hover {
         background-color: #1565c0;
-        padding: 10px 20px;
       }
+      
     </style>
   </head>
   <body>
@@ -131,9 +114,9 @@
       {% if bug %}<h1>Edit Bug Report</h1>{% else %}<h1>Create Bug Report</h1>{% endif %}
       <div class="user-info">
         {% if session.logged_in %}
-        <a href="{{ url_for('home') }}" class="login-btn">Home</a>
+        <button type="button" onclick=" homeAction()"  class="home-btn">Home</button>
         <button class="username">{{ user_name }}</button>
-        <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+        <button type="button" onclick=" logoutAction()" class="logout-btn">Logout</a>
         {% else %}
         <a href="{{ url_for('login') }}" class="login-btn">Login</a>
         {% endif %}
@@ -341,11 +324,25 @@
         </div>
         {% endif %}
         <div class="button-group">
-          <button type="submit">{% if bug %}Update{% else %}Submit{% endif %}</button>
-      <button type="reset">Reset</button>
-      <a href="{{ url_for('home') }}" class="button">Cancel</a>
+          <button type="submit" class = "below-btn">{% if bug %}Update{% else %}Submit{% endif %}</button>
+      <button type="reset" class = "below-btn">Reset</button>
+      
+      <button type="button" onclick=" homeAction()" class="below-btn">Cancel</button>
+      
         </div>
       </form>
     </div>
   </body>
+
+  <script>
+
+  function logoutAction() {
+      window.location.href = "{{ url_for('login') }}";
+    }
+
+    function homeAction() {
+      window.location.href = "{{ url_for('home') }}";
+    }
+
+    </script>
 </html>
