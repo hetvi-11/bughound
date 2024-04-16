@@ -96,14 +96,9 @@
     <div class="container">
       <div class="dashboard-options">
         <a href="{{ url_for('create_report') }}">Create New Bug Report</a>
-<<<<<<< HEAD
-        <a href="{{ url_for('update_bug_report') }}">Update Existing Bug Report</a>
-        <a href="{{ url_for('delete') }}">Delete Bug Report</a>
-=======
         <a href="{{ url_for('update_bug_report') }}"
           >Update Existing Bug Report</a
         >
->>>>>>> 66aa56433c7539105a7133c9d90df2a49c633b93
         <a href="{{ url_for('search_reports') }}">Search Bug Report</a>
         {% if level > 1 %}
         <a href="{{ url_for('delete') }}">Delete Bug Report</a>
