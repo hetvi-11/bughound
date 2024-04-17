@@ -6,13 +6,13 @@ from werkzeug.utils import secure_filename
 
 
 app = Flask(__name__)
-app.secret_key = 'secret'  # Replace with your secret key
+app.secret_key = 'secret'  
 app.debug = True
-# Database configuration
+
 db_config = {
     'host': 'localhost',
-    'database': 'bughound-project',  # Replace with your database name
-    'user': 'root'  # Replace with your username
+    'database': 'bughound-project',  
+    'user': 'root'  
 }
 
 @app.route('/')
@@ -28,7 +28,6 @@ def login():
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
 
-        # Ensure you are selecting the user level (e.g., user_level)
         query = "SELECT user_id, username, level FROM users WHERE username = %s AND password = %s"
         cursor.execute(query, (username, password))
         user = cursor.fetchone()
@@ -39,7 +38,7 @@ def login():
         if user:
             session['logged_in'] = True
             session['user_name'] = user[1]
-            session['level'] = int(user[2])  # Store user level in session
+            session['level'] = int(user[2]) 
             return redirect(url_for('home'))
         else:
             flash('Invalid username or password')
@@ -48,7 +47,7 @@ def login():
 
 @app.route('/logout')
 def logout():
-    session.clear()  # Clear the entire session
+    session.clear()  
     return redirect(url_for('index'))
 
 
@@ -92,14 +91,14 @@ def home():
 def create_report():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
-    level = session.get('level', 0)  # Default to level 0 if not set
+    level = session.get('level', 0)  
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT program_id, program_name FROM program")  # Query to fetch program names
+    cursor.execute("SELECT program_id, program_name FROM program")  
     programs = cursor.fetchall()
     cursor.execute("SELECT username FROM users")
     users = cursor.fetchall() 
-    cursor.execute("SELECT area_id, name FROM `functional-area`")  # Query to fetch area names
+    cursor.execute("SELECT area_id, name FROM `functional-area`")  
     areas = cursor.fetchall()
     today = date.today().strftime('%Y-%m-%d')
     report_types = [
@@ -215,7 +214,7 @@ def save_attachment_to_database(bug_id, filename, data, cursor):
     cursor.execute(sql, (bug_id, filename, data))
 
 def allowed_file(filename):
-    # Check the file extension if needed
+    
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
@@ -228,40 +227,45 @@ def submit_or_update_report(form, bug_id=None):
     # Prepare data fields
     date_resolved = form.get('resolved-date') or None
     report_date = form.get('report-date') or datetime.date.today().isoformat()
+    area_id = form.get('area') or None
+    assigned_user = form.get('assigned-to') or None
+    priority = form.get('priority') or None
+    date_tested = form.get('tested-date') or None
+    resolution_version = form.get('resolution-version') or None
 
     # Base data list
     data = [
         form.get('program'), form.get('bug_type'), form.get('severity'), form.get('problem-summary'),
         form.get('description'), '1' if form.get('reproducible') == 'on' else '0',
         form.get('suggested-fix'), form.get('reported-by'), report_date,
-        form.get('status'), form.get('assigned-to'), form.get('comments'), date_resolved, form.get('priority'),
-        form.get('tested-by'), form.get('tested-date'), form.get('area'), form.get('resolution'), 
-        form.get('resolution-version'), form.get('resolved-by')
+        form.get('status'), assigned_user, form.get('comments'), date_resolved, priority,
+        form.get('tested-by'), date_tested, area_id, form.get('resolution'), 
+        resolution_version, form.get('resolved-by')
     ]
 
     if bug_id is None:
-        # Insert new bug report
+        
         sql = """INSERT INTO `bug-report` (program_id, bug_type, severity, problem_summary, description, reproducible, suggested_fix,
                  reported_by, date_created, status, assigned_user, comments, date_resolved, priority, tested_by, date_tested, area_id, resolution, resolution_version, resolved_by)
                  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
         
         cursor.execute(sql, data)
-        
-        bug_id = cursor.lastrowid  # Get the last inserted id
+        flash('Report submitted successfully!' if bug_id is None else 'Report updated successfully!')    
+        bug_id = cursor.lastrowid  
     else:
         # Update existing bug report
-        data.append(bug_id)  # Append bug_id at the end for WHERE condition
+        data.append(bug_id)  
         sql = """UPDATE `bug-report` SET program_id=%s, bug_type=%s, severity=%s, problem_summary=%s, description=%s, 
                  reproducible=%s, suggested_fix=%s, reported_by=%s, date_created=%s, status=%s, assigned_user=%s, comments=%s,
                  date_resolved=%s, priority=%s, tested_by=%s, date_tested=%s, area_id=%s, resolution=%s, resolution_version=%s, resolved_by=%s WHERE bug_id=%s"""
         cursor.execute(sql, data)
-        
+        flash('Report submitted successfully!' if bug_id is None else 'Report updated successfully!')
 
     # Handle attachments if present
     if 'attachments' in request.files:
         files = request.files.getlist('attachments')
         for file in files:
-            if file and allowed_file(file.filename):  # Ensure it's a valid file type
+            if file and allowed_file(file.filename): 
                 filename = secure_filename(file.filename)
                 file_data = file.read()  # Read the file binary data
                 
@@ -274,54 +278,15 @@ def submit_or_update_report(form, bug_id=None):
                     print("query is working")
                 except Exception as e:
                         print("Failed to insert data:", e)
-                        # Optionally, re-raise the exception or handle it as needed
+                        
                         raise
                 
     conn.commit()
     cursor.close()
     conn.close()
 
-    flash('Report submitted successfully!' if bug_id is None else 'Report updated successfully!')
+    
     return redirect(url_for('home'))
-
-
-# def submit_or_update_report(form, bug_id=None):
-#     conn = mysql.connector.connect(**db_config)
-#     cursor = conn.cursor()
-
-#     data = (
-#         form.get('program'), form.get('bug_type'), form.get('severity'), form.get('problem-summary'),
-#         form.get('description'), '1' if form.get('reproducible') == 'on' else '0',
-#         form.get('suggested-fix'), form.get('reported-by'), form.get('report-date') or datetime.date.today().isoformat(),
-#         form.get('status'), form.get('assigned-to'), form.get('comments'), form.get('resolved-date') or None, form.get('priority'),
-#         form.get('tested-by'), form.get('tested-date'), form.get('area'), form.get('resolution'), form.get('resolution-version'), form.get('resolved-by')
-#     )
-
-#     if bug_id is None:
-#         sql = """INSERT INTO `bug-report` (program_id, bug_type, severity, problem_summary, description, reproducible, suggested_fix,
-#                  reported_by, date_created, status, assigned_user, comments, date_resolved, priority, tested_by, date_tested, area_id, resolution, resolution_version, resolved_by)
-#                  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-        
-#         if 'attachments' in request.files:
-#             files = request.files.getlist('attachments')
-#             for file in files:
-#                 if file and allowed_file(file.filename):  # Ensure it's a valid file type
-#                     filename = secure_filename(file.filename)
-#                     file_data = file.read()  # Read the file binary data
-#                     save_attachment_to_database(bug_id, filename, file_data, cursor)
-#     else:
-#         sql = """UPDATE `bug-report` SET program_id=%s, bug_type=%s, severity=%s, problem_summary=%s, description=%s, 
-#                  reproducible=%s, suggested_fix=%s, reported_by=%s, date_created=%s, status=%s, assigned_user=%s, comments=%s,
-#                  date_resolved=%s, priority=%s, tested_by=%s, date_tested=%s, area_id=%s, resolution=%s, resolution_version=%s, resolved_by=%s WHERE bug_id=%s"""
-#         data += (bug_id,)
-
-#     cursor.execute(sql, data)
-#     conn.commit()
-#     cursor.close()
-#     conn.close()
-
-#     flash('Report submitted successfully!' if bug_id is None else 'Report updated successfully!')
-#     return redirect(url_for('home'))
 
 
 def fetch_lookups(cursor):
@@ -353,15 +318,14 @@ def get_user_details(cursor, user_id):
 def update_bug_report():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
-    # username = session.get('username', 0)
-    # Assuming you have a function to fetch bug reports from your database:
-    bug_reports = fetch_bug_reports()  # You need to define this function
+    
+    bug_reports = fetch_bug_reports()  
 
     return render_template('update.html', bug_reports=bug_reports, user_name=session.get('user_name'))
 
 def fetch_bug_reports():
     conn = mysql.connector.connect(**db_config)
-    cursor = conn.cursor(dictionary=True)  # Use dictionary cursor to return data as dictionaries
+    cursor = conn.cursor(dictionary=True)  
 
     cursor.execute("SELECT bug_id, description, assigned_user, priority, status FROM `bug-report`")
     bug_reports = cursor.fetchall()
@@ -373,7 +337,7 @@ def fetch_bug_reports():
 
 def fetch_func_area():
     conn = mysql.connector.connect(**db_config)
-    cursor = conn.cursor(dictionary=True)  # Use dictionary cursor to return data as dictionaries
+    cursor = conn.cursor(dictionary=True)  
 
     cursor.execute("SELECT area_id, program_id, name FROM `functional-area`")
     func_area = cursor.fetchall()
@@ -385,7 +349,7 @@ def fetch_func_area():
 
 def fetch_programs():
     conn = mysql.connector.connect(**db_config)
-    cursor = conn.cursor(dictionary=True)  # Use dictionary cursor to return data as dictionaries
+    cursor = conn.cursor(dictionary=True)  
 
     cursor.execute("SELECT program_id, program_name, version, release_date FROM program")
     program = cursor.fetchall()
@@ -397,7 +361,7 @@ def fetch_programs():
 
 def fetch_users():
     conn = mysql.connector.connect(**db_config)
-    cursor = conn.cursor(dictionary=True)  # Use dictionary cursor to return data as dictionaries
+    cursor = conn.cursor(dictionary=True)  
 
     cursor.execute("SELECT user_id, username, password, level FROM users")
     users = cursor.fetchall()
@@ -604,14 +568,14 @@ def delete():
 def search_reports():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
-    level = session.get('level', 0)  # Default to level 0 if not set
+    level = session.get('level', 0)  
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
-    cursor.execute("SELECT program_id, program_name FROM program")  # Query to fetch program names
+    cursor.execute("SELECT program_id, program_name FROM program")  
     programs = cursor.fetchall()
     cursor.execute("SELECT username FROM users")
     users = cursor.fetchall() 
-    cursor.execute("SELECT area_id, name FROM `functional-area`")  # Query to fetch area names
+    cursor.execute("SELECT area_id, name FROM `functional-area`")  
     areas = cursor.fetchall()
     
     report_types = [
@@ -722,50 +686,13 @@ def search_reports_result():
     
     print(params)
     cursor.execute(query, params ) 
-        #cursor.execute(second_query, ((program),))
+     
     second_results = cursor.fetchall()
     print(second_results)
     cursor.close()
     
-
-    # Pass the results to a new template for displaying the search results
     return render_template('search_results.html', user_name=session.get('user_name'),second_results=second_results, report_types=report_types, severity_levels=severity_levels)
 
-
-
-# @app.route('/delete_bug', defaults={'bug_id': None}, methods=['GET', 'POST'])
-# @app.route('/delete_bug/<int:bug_id>', methods=['POST'])
-# def delete_bug(bug_id):
-#     if not session.get('logged_in'):
-#         return redirect(url_for('login'))
-
-#     conn = mysql.connector.connect(**db_config)
-#     cursor = conn.cursor()
-#     try:
-#         cursor.execute("DELETE FROM bug-report WHERE bug_id = %s", (bug_id,))
-#         conn.commit()
-#         flash('Bug report deleted successfully!')
-#     except Exception as e:
-#         flash(f"Error deleting bug report: {str(e)}", 'error')
-#         conn.rollback()
-#     finally:
-#         cursor.close()
-#         conn.close()
-#     return redirect(url_for('delete'))
-
-# @app.route('/delete')
-# def delete():
-#     if not session.get('logged_in'):
-#         return redirect(url_for('login'))
-
-#     conn = mysql.connector.connect(**db_config)
-#     cursor = conn.cursor(dictionary=True)
-#     cursor.execute("SELECT * FROM `bug-report`")
-#     bugs = cursor.fetchall()
-#     cursor.close()
-#     conn.close()
-    
-#     return render_template('delete.html', bugs=bugs, user_name=session.get('user_name'))
 
 if __name__ == '__main__':
     app.run(debug=True)

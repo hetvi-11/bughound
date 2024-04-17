@@ -219,7 +219,8 @@
         <h2>Additional Information</h2>
         <div class="form-section">
           <label for="area">Functional area:</label>
-          <select id="area" name="area" required>
+          <select id="area" name="area">
+            <option value="">Select Functional-area</option>
             {% for area in areas %}
             <option value="{{ area['area_id'] }}" {% if bug and bug.area_id == area['area_id'] %}selected{% endif %}>
                 {{ area['name'] }}
@@ -230,7 +231,8 @@
 
         <div class="form-section">
           <label for="assigned-to">Assigned to:</label>
-          <select id="assigned-to" name="assigned-to" required>
+          <select id="assigned-to" name="assigned-to">
+            <option value="">Select Assigned user</option>
             {% for user in users %}
             <option value="{{ user['username'] }}" {% if bug and bug.assigned_user == user['username'] %}selected{% endif %}>
               {{ user['username'] }}
@@ -247,6 +249,7 @@
         <div class="form-section">
           <label for="status">Status:</label>
           <select id="status" name="status">
+            <option value="">Select Status</option>
             <option value="open" {% if bug and bug.status == 'open' %}selected{% endif %}>Open</option>
             <option value="closed" {% if bug and bug.status == 'closed' %}selected{% endif %}>Closed</option>
             <option value="in-progress" {% if bug and bug.status == 'in-progress' %}selected{% endif %}>In Progress</option>
@@ -256,6 +259,7 @@
         <div class="form-section">
           <label for="priority">Priority:</label>
          <select id="priority" name="priority">
+          <option value="">Select Priority</option>
         <option value="1" {% if bug and bug.priority == 1 %}selected{% endif %}>1. Fix Immediately</option>
         <option value="2" {% if bug and bug.priority == 2 %}selected{% endif %}>2. Fix as soon as possible</option>
         <option value="3" {% if bug and bug.priority == 3 %}selected{% endif %}>3. Fix before next milestone</option>
@@ -268,6 +272,7 @@
         <div class="form-section">
           <label for="resolution">Resolution:</label>
           <select id="resolution" name="resolution">
+            <option value="">Select resolution</option>
         <option value="Pending" {% if bug and bug.resolution == 'Pending' %}selected{% endif %}>Pending</option>
         <option value="Fixed" {% if bug and bug.resolution == 'Fixed' %}selected{% endif %}>Fixed</option>
         <option value="Cannot be reproduced" {% if bug and bug.resolution == 'Cannot be reproduced' %}selected{% endif %}>Cannot be reproduced</option>
@@ -284,6 +289,7 @@
         <div class="form-section">
           <label for="resolution-version">Resolution Version:</label>
           <select id="resolution-version" name="resolution-version">
+            <option value="">Select Resolution version</option>
             <option value="1" {% if bug and bug.resolution_version == 1 %}selected{% endif %}>Version 1</option>
             <option value="2" {% if bug and bug.resolution_version == 2 %}selected{% endif %}>Version 2</option>
             <option value="3" {% if bug and bug.resolution_version == 3 %}selected{% endif %}>Version 3</option>
@@ -293,6 +299,7 @@
         <div class="form-section">
           <label for="resolved-by">Resolved By:</label>
           <select id="resolved-by" name="resolved-by">
+            <option value="">Select Resolved-By</option>
             {% for user in users %}
             <option value="{{ user['username'] }}" {% if bug and bug.resolved_by == user['username'] %}selected{% endif %}>
               {{ user['username'] }}
@@ -309,7 +316,8 @@
 
         <div class="form-section">
           <label for="tested-by">Tested By:</label>
-          <select id="tested-by" name="tested-by" required>
+          <select id="tested-by" name="tested-by">
+            <option value="">Select Tested-By</option>
           {% for user in users %}
             <option value="{{ user['username'] }}" {% if bug and bug.tested_by == user['username'] %}selected{% endif %}>
               {{ user['username'] }}

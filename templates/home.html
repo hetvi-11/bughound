@@ -84,23 +84,26 @@
         {% endif %}
       </div>
     </header>
-    <div class="flash-messages">
-      {% with messages = get_flashed_messages() %} {% if messages %}
-      <ul class="flashes">
-        {% for message in messages %}
-        <li>{{ message }}</li>
-        {% endfor %}
-      </ul>
-      {% endif %} {% endwith %}
-    </div>
+    
     <div class="container">
+      <div class="flash-messages">
+        {% with messages = get_flashed_messages() %} {% if messages %}
+        <ul class="flashes">
+          {% for message in messages %}
+          <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %} {% endwith %}
+      </div>
       <div class="dashboard-options">
         <a href="{{ url_for('create_report') }}">Create New Bug Report</a>
+        {% if level > 1%}
         <a href="{{ url_for('update_bug_report') }}"
           >Update Existing Bug Report</a
         >
+        {% endif %}
+        {% if level > 2%}
         <a href="{{ url_for('search_reports') }}">Search Bug Report</a>
-        {% if level > 1 %}
         <a href="{{ url_for('delete') }}">Delete Bug Report</a>
         <a href="{{ url_for('subdashboard_page') }}">DB Maintenance</a>
         {% endif %}
