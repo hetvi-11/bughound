@@ -18,7 +18,7 @@
         color: white;
         padding: 20px;
         text-align: center;
-        overflow: hidden; /* Added */
+        overflow: hidden; 
       }
       .container {
         max-width: 800px;
@@ -157,7 +157,7 @@
   </body>
   <script>
     function logoutAction() {
-      window.location.href = "{{ url_for('login') }}";
+      window.location.href = "{{ url_for('index') }}";
     }
 
     function homeAction() {

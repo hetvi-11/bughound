@@ -16,7 +16,7 @@
         color: white;
         padding: 20px;
         text-align: center;
-        overflow: hidden; /* Added */
+        overflow: hidden; 
       }
       .login-container {
         max-width: 400px;
@@ -55,9 +55,9 @@
         border-radius: 5px;
         cursor: pointer;
         transition: background-color 0.3s ease;
-        margin: 0 auto; /* Center align */
-        display: block; /* Ensure button is a block element */
-        text-align: center; /* Center align text within the button */
+        margin: 0 auto; 
+        display: block; 
+        text-align: center; 
       }
       button:hover {
         background-color: #1565c0;
@@ -67,7 +67,7 @@
         font-size: 24px;
       }
       h2 {
-        text-align: center; /* Center align the login heading */
+        text-align: center; 
         margin-bottom: 20px;
       }
     </style>
@@ -78,7 +78,6 @@
     </header>
 
     <div class="login-container">
-      <!-- Display Flash Messages -->
       {% for message in get_flashed_messages() %}
       <div style="color: red">{{ message }}</div>
       {% endfor %}
