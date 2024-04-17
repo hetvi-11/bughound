@@ -16,7 +16,7 @@
         color: white;
         padding: 20px;
         text-align: center;
-        overflow: hidden; /* Added */
+        overflow: hidden; 
       }
       .container {
         max-width: 800px;
@@ -84,6 +84,7 @@
         {% endif %}
       </div>
     </header>
+    
     <div class="container">
       <div class="flash-messages">
         {% with messages = get_flashed_messages() %} {% if messages %}
@@ -96,11 +97,12 @@
       </div>
       <div class="dashboard-options">
         <a href="{{ url_for('create_report') }}">Create New Bug Report</a>
-        
-        {% if level > 1 %}
+        {% if level > 1%}
         <a href="{{ url_for('update_bug_report') }}"
           >Update Existing Bug Report</a
         >
+        {% endif %}
+        {% if level > 2%}
         <a href="{{ url_for('search_reports') }}">Search Bug Report</a>
         <a href="{{ url_for('delete') }}">Delete Bug Report</a>
         <a href="{{ url_for('subdashboard_page') }}">DB Maintenance</a>
@@ -110,7 +112,7 @@
   </body>
   <script> 
   function logoutAction() {
-      window.location.href = "{{ url_for('login') }}";
+      window.location.href = "{{ url_for('index') }}";
     }
 </script>
 </html>

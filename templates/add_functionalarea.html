@@ -18,7 +18,7 @@
         color: white;
         padding: 20px;
         text-align: center;
-        overflow: hidden; /* Added */
+        overflow: hidden; 
       }
       .container {
         max-width: 800px;
@@ -104,6 +104,7 @@
         cursor: pointer;
         transition: background-color 0.3s ease;
         font-size: 16px;
+          border-radius: 5px;
       }
       .username:hover,
       .logout-btn:hover,
@@ -156,7 +157,7 @@
   </body>
   <script>
     function logoutAction() {
-      window.location.href = "{{ url_for('login') }}";
+      window.location.href = "{{ url_for('index') }}";
     }
 
     function homeAction() {
