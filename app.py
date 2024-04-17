@@ -198,6 +198,7 @@ def submit_or_update_report(form, bug_id=None):
     # Prepare data fields
     date_resolved = form.get('resolved-date') or None
     report_date = form.get('report-date') or datetime.date.today().isoformat()
+    area_id = form.get('area') or None
 
     # Base data list
     data = [
@@ -205,7 +206,7 @@ def submit_or_update_report(form, bug_id=None):
         form.get('description'), '1' if form.get('reproducible') == 'on' else '0',
         form.get('suggested-fix'), form.get('reported-by'), report_date,
         form.get('status'), form.get('assigned-to'), form.get('comments'), date_resolved, form.get('priority'),
-        form.get('tested-by'), form.get('tested-date'), form.get('area'), form.get('resolution'), 
+        form.get('tested-by'), form.get('tested-date'), area_id, form.get('resolution'), 
         form.get('resolution-version'), form.get('resolved-by')
     ]
 
@@ -216,7 +217,7 @@ def submit_or_update_report(form, bug_id=None):
                  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
         
         cursor.execute(sql, data)
-        
+        flash('Report submitted successfully!' if bug_id is None else 'Report updated successfully!')    
         bug_id = cursor.lastrowid  # Get the last inserted id
     else:
         # Update existing bug report
@@ -225,7 +226,7 @@ def submit_or_update_report(form, bug_id=None):
                  reproducible=%s, suggested_fix=%s, reported_by=%s, date_created=%s, status=%s, assigned_user=%s, comments=%s,
                  date_resolved=%s, priority=%s, tested_by=%s, date_tested=%s, area_id=%s, resolution=%s, resolution_version=%s, resolved_by=%s WHERE bug_id=%s"""
         cursor.execute(sql, data)
-        
+        flash('Report submitted successfully!' if bug_id is None else 'Report updated successfully!')
 
     # Handle attachments if present
     if 'attachments' in request.files:
@@ -251,7 +252,7 @@ def submit_or_update_report(form, bug_id=None):
     cursor.close()
     conn.close()
 
-    flash('Report submitted successfully!' if bug_id is None else 'Report updated successfully!')
+    
     return redirect(url_for('home'))
 
 
