@@ -51,6 +51,36 @@ def logout():
     session.clear()  # Clear the entire session
     return redirect(url_for('index'))
 
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        confirm_password = request.form['confirm_password']
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        squery = "SELECT username FROM users "
+        cursor.execute(squery)
+        results = cursor.fetchall()
+        print(results)
+
+        existing_user = [row[0] for row in results]
+        if username in existing_user:
+            flash('Username already exists. Please choose a different Name.', 'username_error')
+        elif password != confirm_password:
+            flash('Passwords do not match. Please try again.', 'password_error')
+        else:
+            insert_query = "INSERT INTO users (username, password, level) VALUES (%s, %s, %s)"
+            cursor.execute(insert_query, (username, password, 1))  # Set level to 1 by default
+            conn.commit()  # Commit the transaction
+
+            flash('Signup successful! You can now login.', 'success')
+            return redirect(url_for('login'))
+    
+    return render_template('signup.html')
+
 @app.route('/home')
 def home():
     if not session.get('logged_in'):
