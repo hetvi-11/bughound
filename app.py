@@ -3,7 +3,7 @@ import mysql.connector
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from datetime import date
 from werkzeug.utils import secure_filename
-
+from flask import jsonify
 
 app = Flask(__name__)
 app.secret_key = 'secret'  
@@ -167,7 +167,7 @@ def addfuncarea(area_id):
         return submit_or_update_area(request.form, area_id)
     
     area = None if area_id is None else get_area_details(cursor, area_id)
-    cursor.execute("SELECT program_id, program_name FROM program")
+    cursor.execute("SELECT MIN(program_id) as program_id, program_name FROM program GROUP BY program_name ORDER BY program_name")
     programs = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -225,7 +225,6 @@ def submit_or_update_report(form, bug_id=None):
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
 
-    # Prepare data fields
     date_resolved = form.get('resolved-date') or None
     report_date = form.get('report-date') or datetime.date.today().isoformat()
     area_id = form.get('area') or None
@@ -254,7 +253,6 @@ def submit_or_update_report(form, bug_id=None):
         flash('Report submitted successfully!' if bug_id is None else 'Report updated successfully!')    
         bug_id = cursor.lastrowid  
     else:
-        # Update existing bug report
         data.append(bug_id)  
         sql = """UPDATE `bug-report` SET program_id=%s, bug_type=%s, severity=%s, problem_summary=%s, description=%s, 
                  reproducible=%s, suggested_fix=%s, reported_by=%s, date_created=%s, status=%s, assigned_user=%s, comments=%s,
@@ -262,13 +260,12 @@ def submit_or_update_report(form, bug_id=None):
         cursor.execute(sql, data)
         flash('Report submitted successfully!' if bug_id is None else 'Report updated successfully!')
 
-    # Handle attachments if present
     if 'attachments' in request.files:
         files = request.files.getlist('attachments')
         for file in files:
             if file and allowed_file(file.filename): 
                 filename = secure_filename(file.filename)
-                file_data = file.read()  # Read the file binary data
+                file_data = file.read() 
                 
                 d = [bug_id, filename, file_data]
                 print(d)
@@ -285,8 +282,7 @@ def submit_or_update_report(form, bug_id=None):
     conn.commit()
     cursor.close()
     conn.close()
-
-    
+  
     return redirect(url_for('home'))
 
 
@@ -309,7 +305,60 @@ def get_area_details(cursor, area_id):
 
 def get_program_details(cursor, program_id):
     cursor.execute("SELECT * FROM program WHERE program_id = %s", (program_id,))
-    return cursor.fetchone()
+    program = cursor.fetchone()
+    if program:
+        data = {
+            "program_name": program['program_name'],
+            "versions": [program['version']],
+            "releases": [program['releaseversion']]
+        }
+    else:
+        data = {
+            "program_name": None,
+            "versions": [],
+            "releases": []
+        }
+    return data
+
+@app.route('/get-program-details/<int:program_id>')
+def fetch_program_details(program_id):
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+
+    data = get_program_details(cursor, program_id)
+
+    cursor.close()
+    conn.close()
+
+    if data['program_name'] is None:
+        return jsonify({}), 404  # Return an empty response with a 404 status if no program is found
+
+    return jsonify(data), 200  # Return the data as JSON with a 200 OK status
+
+@app.route('/get-program-details-by-name/<program_name>')
+def fetch_program_details_by_name(program_name):
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+
+    try:
+        cursor.execute("SELECT version, releaseversion FROM program WHERE program_name = %s", (program_name,))
+        results = cursor.fetchall()
+        if results:
+            data = {
+                "versions": [result['version'] for result in results],
+                "releases": [result['releaseversion'] for result in results]
+            }
+        else:
+            data = {"versions": [], "releases": []}
+    finally:
+        cursor.close()
+        conn.close()
+
+    if not results:
+        return jsonify({}), 404  # Return an empty response with a 404 status if no data is found
+
+    return jsonify(data), 200
+
 
 def get_user_details(cursor, user_id):
     cursor.execute("SELECT * FROM users WHERE user_id = %s", (user_id,))
@@ -448,25 +497,64 @@ def submit_or_update_program(form, program_id=None):
     flash('Program added successfully!' if program_id is None else 'Program updated successfully!')
     return redirect(url_for('program'))
 
-
 def submit_or_update_area(form, area_id=None):
     conn = mysql.connector.connect(**db_config)
-    cursor = conn.cursor()
-    data = (
-        form.get('program'), form.get('functional-area')
-    )
+    cursor = conn.cursor(dictionary=True)  
+
+    program_name = form.get('program')
+    version = form.get('program-version')
+    releaseversion = form.get('program-release')
+    cursor.execute("SELECT program_id FROM program WHERE program_name = %s AND version=%s AND releaseversion=%s", (program_name,version, releaseversion))
+    program = cursor.fetchone()
+    
+    # Check if the program was found
+    if program is None:
+        flash('Program not found.')
+        return redirect(url_for('functional_area'))
+
+    # Prepare data for the functional-area query
+    program_id = program['program_id']
+    functional_area_name = form.get('functional-area')
+    data = (program_id, functional_area_name)
+
+    # Decide if it's an insert or update operation based on area_id
     if area_id is None:
         sql = """INSERT INTO `functional-area` (program_id, name)
                  VALUES (%s, %s)"""
     else:
         sql = """UPDATE `functional-area` SET program_id=%s, name=%s WHERE area_id=%s"""
         data += (area_id,)
+
+    # Execute the query and commit changes
     cursor.execute(sql, data)
     conn.commit()
+
+    # Clean up: close cursor and connection
     cursor.close()
     conn.close()
+
+    # Provide user feedback
     flash('Functional area submitted successfully!' if area_id is None else 'Functional area updated successfully!')
     return redirect(url_for('functional_area'))
+
+# def submit_or_update_area(form, area_id=None):
+#     conn = mysql.connector.connect(**db_config)
+#     cursor = conn.cursor()
+#     data = (
+#         form.get('program'), form.get('functional-area')
+#     )
+#     if area_id is None:
+#         sql = """INSERT INTO `functional-area` (program_id, name)
+#                  VALUES (%s, %s)"""
+#     else:
+#         sql = """UPDATE `functional-area` SET program_id=%s, name=%s WHERE area_id=%s"""
+#         data += (area_id,)
+#     cursor.execute(sql, data)
+#     conn.commit()
+#     cursor.close()
+#     conn.close()
+#     flash('Functional area submitted successfully!' if area_id is None else 'Functional area updated successfully!')
+#     return redirect(url_for('functional_area'))
 
 @app.route('/user/<int:user_id>', methods=['POST'])
 def delete_user(user_id):
@@ -598,7 +686,6 @@ def search_reports():
 
 @app.route('/search', methods=['POST'])
 def search_reports_result():
-
     report_types = [
         ('bug', 'Coding Error'),
         ('issue', 'Design Issue'),
@@ -653,7 +740,6 @@ def search_reports_result():
         query += " AND area_id = %s"
         params = params + (functional_area,)
 
-
     if assigned_to:
             query += " AND assigned_user = %s"
             params = params + (assigned_to,)
@@ -682,18 +768,14 @@ def search_reports_result():
             query += " AND reported_by = %s"
             params = params + (resolved_by,)
 
-
-
-    
     print(params)
     cursor.execute(query, params ) 
-     
+   
     second_results = cursor.fetchall()
     print(second_results)
     cursor.close()
     
     return render_template('search_results.html', user_name=session.get('user_name'),second_results=second_results, report_types=report_types, severity_levels=severity_levels)
-
 
 if __name__ == '__main__':
     app.run(debug=True)

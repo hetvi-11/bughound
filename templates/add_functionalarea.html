@@ -6,6 +6,7 @@
     <title>
       {% if area %}Edit Functional Area{% else %}Add Functional Area{% endif %}
     </title>
+    
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -132,13 +133,21 @@
             <div class="form-group">
               
                   <label for="program">Program Name:</label>
-                  <select id="program" name="program" required>
-                    {% for program in programs %}
-                    <option value="{{ program['program_id'] }}" {% if area and area.program_id == program['program_id'] %}selected{% endif %}>
-                        {{ program['program_name'] }}
-                    </option>
-                    {% endfor %}
+                  <select id="program" name="program" required onchange="updateProgramDetails()">
+                      {% for program in programs %}
+                      <option value="{{ program['program_name'] }}" {% if area and area.program_name == program['program_name'] %}selected{% endif %}>
+                          {{ program['program_name'] }}
+                      </option>
+                      {% endfor %}
                   </select>
+            </div>
+            <div class="form-group">
+                <label for="program-version">Program Version:</label>
+                <select id="program-version" name="program-version" required></select>
+            </div>
+            <div class="form-group">
+                <label for="program-release">Program Release:</label>
+                <select id="program-release" name="program-release" required></select>
             </div>
             <div class="form-group">
               <label for="functional-area">Functional Area Name:</label>
@@ -155,14 +164,14 @@
     </div>
 
   </body>
-  <script>
+  <script src="/static/js/updateProgramDetails.js"></script>
+    <script>
     function logoutAction() {
-      window.location.href = "{{ url_for('index') }}";
+        window.location.href = "{{ url_for('index') }}";
     }
-
     function homeAction() {
-      window.location.href = "{{ url_for('home') }}";
+        window.location.href = "{{ url_for('home') }}";
     }
-  </script>
+    </script>
 
 </html>
