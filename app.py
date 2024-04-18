@@ -54,6 +54,7 @@ def logout():
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
+        employname = request.form['employname']
         username = request.form['username']
         password = request.form['password']
         confirm_password = request.form['confirm_password']
@@ -71,8 +72,8 @@ def signup():
         elif password != confirm_password:
             flash('Passwords do not match. Please try again.', 'password_error')
         else:
-            insert_query = "INSERT INTO users (username, password, level) VALUES (%s, %s, %s)"
-            cursor.execute(insert_query, (username, password, 1))  # Set level to 1 by default
+            insert_query = "INSERT INTO users (employname, username, password, level) VALUES (%s, %s, %s, %s)"
+            cursor.execute(insert_query, (employname, username, password, 1))  # Set level to 1 by default
             conn.commit()  # Commit the transaction
 
             flash('Signup successful! You can now login.', 'success')
@@ -351,7 +352,7 @@ def fetch_programs():
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)  
 
-    cursor.execute("SELECT program_id, program_name, version, release_date FROM program")
+    cursor.execute("SELECT program_id, program_name, version, releaseversion, release_date FROM program")
     program = cursor.fetchall()
 
     cursor.close()
@@ -363,7 +364,7 @@ def fetch_users():
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)  
 
-    cursor.execute("SELECT user_id, username, password, level FROM users")
+    cursor.execute("SELECT user_id, employname, username, password, level FROM users")
     users = cursor.fetchall()
 
     cursor.close()
@@ -406,14 +407,14 @@ def submit_or_update_user(form, user_id=None):
     cursor = conn.cursor()
     
     data = (
-        form.get('username'), form.get('level'), form.get('password')
+        form.get('employname'), form.get('username'), form.get('level'), form.get('password')
     )
 
     if user_id is None:
-        sql = """INSERT INTO users (username, level, password)
-                 VALUES (%s, %s, %s)"""
+        sql = """INSERT INTO users (employname, username, level, password)
+                 VALUES (%s, %s, %s, %s)"""
     else:
-        sql = """UPDATE users SET username=%s, level=%s, password=%s WHERE user_id=%s"""
+        sql = """UPDATE users SET employname=%s, username=%s, level=%s, password=%s WHERE user_id=%s"""
         data += (user_id,)
 
     cursor.execute(sql, data)
@@ -429,14 +430,14 @@ def submit_or_update_program(form, program_id=None):
     cursor = conn.cursor()
     
     data = (
-        form.get('program-name'), form.get('version'), form.get('release-date')
+        form.get('program-name'), form.get('version'), form.get('releaseversion'), form.get('release-date')
     )
 
     if program_id is None:
-        sql = """INSERT INTO program (program_name, version, release_date)
-                 VALUES (%s, %s, %s)"""
+        sql = """INSERT INTO program (program_name, version,releaseversion, release_date)
+                 VALUES (%s, %s, %s, %s)"""
     else:
-        sql = """UPDATE program SET program_name=%s, version=%s, release_date=%s WHERE program_id=%s"""
+        sql = """UPDATE program SET program_name=%s, version=%s, releaseversion=%s, release_date=%s WHERE program_id=%s"""
         data += (program_id,)
 
     cursor.execute(sql, data)

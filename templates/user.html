@@ -125,6 +125,7 @@
         <thead>
           <tr>
             <th>User ID</th>
+            <th>Full Name</th>
             <th>User Name</th>
             <th>password</th>
             <th>Level</th>
@@ -137,6 +138,7 @@
             {% for user in users %}
             <tr>
               <td>{{ user['user_id'] }}</td>
+              <td>{{ user['employname'] }}</td>
               <td>{{ user['username'] }}</td>
               <td>{{ user['password'] }}</td>
               <td>{{ user['level'] }}</td>

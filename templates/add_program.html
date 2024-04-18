@@ -156,7 +156,20 @@
                 value="{{ program.version if program else '' }}"
             />
             </div>
-            
+
+            <div class="form-group">
+             <label for="releaseversion">Release:</label>
+              <input
+                type="number"
+                id="releaseversion"
+                name="releaseversion"
+                required
+                value="{{ program.releaseversion if program else '' }}"
+                step="1" 
+                min="0"  
+            />
+        </div>
+
             <div class="form-group">
                 <label for="release-date">Release Date:</label>
                 <input type="date" id="release-date" name="release-date"

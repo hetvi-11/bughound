@@ -1,72 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Signup</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f2f2f2;
-    }
-    header {
-      background-color: #1976d2;
-      color: white;
-      padding: 20px;
-      text-align: center;
-      overflow: hidden; /* Added */
-    }
-    .signup-container {
-      max-width: 400px;
-      margin: 20px auto;
-      padding: 20px;
-      background-color: #fff;
-      border-radius: 10px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-    form {
-      padding: 20px;
-      border-radius: 5px;
-      box-sizing: border-box;
-    }
-    label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
-    input[type="text"],
-    input[type="password"] {
-      width: calc(100% - 22px);
-      padding: 10px;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      box-sizing: border-box;
-      outline: none;
-    }
-   
-    .flash-error {
-        color: red;
-    }
-    
-    .flash-success {
-        color: green;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Signup</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f2f2f2;
+      }
+      header {
+        background-color: #1976d2;
+        color: white;
+        padding: 20px;
+        text-align: center;
+        overflow: hidden; /* Added */
+      }
+      .signup-container {
+        max-width: 400px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      form {
+        padding: 20px;
+        border-radius: 5px;
+        box-sizing: border-box;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      input[type="text"],
+      input[type="password"] {
+        width: calc(100% - 22px);
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+        outline: none;
+      }
 
-     .below-btn {
+      .flash-error {
+        color: red;
+      }
+
+      .flash-success {
+        color: green;
+      }
+
+      .below-btn {
         background-color: #1976d2;
         color: white;
         width: 120px;
         border: none;
-        padding: 10px ;
+        padding: 10px;
         cursor: pointer;
         transition: background-color 0.3s ease;
         font-size: 16px;
-          border-radius: 5px;
+        border-radius: 5px;
       }
-     button:hover {
+      button:hover {
         background-color: #1565c0;
       }
 
@@ -74,42 +74,51 @@
         text-align: center;
         margin-top: 20px;
         align-items: center;
-    
       }
-    .welcome-heading {
-      margin-bottom: 20px;
-      font-size: 24px;
-    }
-    h2 {
-      text-align: center; /* Center align the signup heading */
-      margin-bottom: 20px;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>Welcome to BugHound - A Bug Tracking System</h1>
-  </header>
+      .welcome-heading {
+        margin-bottom: 20px;
+        font-size: 24px;
+      }
+      h2 {
+        text-align: center; /* Center align the signup heading */
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Welcome to BugHound - A Bug Tracking System</h1>
+    </header>
 
-  <div class="signup-container">
-    {% for category, message in get_flashed_messages(with_categories=true) %}
-    {% if category == 'username_error' or category == 'password_error' %}
-        <div class="flash-error">{{ message }}</div>
-    {% elif category == 'success' %}
-        <div class="flash-success">{{ message }}</div>
-    {% endif %}
-    {% endfor %}
+    <div class="signup-container">
+      {% for category, message in get_flashed_messages(with_categories=true) %}
+      {% if category == 'username_error' or category == 'password_error' %}
+      <div class="flash-error">{{ message }}</div>
+      {% elif category == 'success' %}
+      <div class="flash-success">{{ message }}</div>
+      {% endif %} {% endfor %}
 
-    <form action="/signup" method="post">
-      <h2>Signup</h2>
-      <input type="text" name="username" placeholder="Username" required />
-      <input type="password" name="password" placeholder="Password" required />
-      <input type="password" name="confirm_password" placeholder="Confirm Password" required />
+      <form action="/signup" method="post">
+        <h2>Signup</h2>
+        <input type="text" name="employname" placeholder="Name" required />
+        <input type="text" name="username" placeholder="Username" required />
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          required
+        />
+        <input
+          type="password"
+          name="confirm_password"
+          placeholder="Confirm Password"
+          required
+        />
 
-    <div class = "button-group">
-      <button type="submit" class="below-btn">Signup</button>
-      </div>
-    </form>
-  </div>
-</body>
+        <div class="button-group">
+          <button type="submit" class="below-btn">Signup</button>
+        </div>
+      </form>
+    </div>
+  </body>
 </html>
