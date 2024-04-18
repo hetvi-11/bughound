@@ -300,7 +300,12 @@ def get_bug_details(cursor, bug_id):
     return cursor.fetchone()
 
 def get_area_details(cursor, area_id):
-    cursor.execute("SELECT * FROM `functional-area` WHERE area_id = %s", (area_id,))
+    cursor.execute("""
+        SELECT fa.area_id, fa.name, p.program_name, p.version, p.releaseversion
+        FROM `functional-area` fa
+        JOIN program p ON fa.program_id = p.program_id
+        WHERE fa.area_id = %s
+    """, (area_id,))
     return cursor.fetchone()
 
 def get_program_details(cursor, program_id):
@@ -389,7 +394,7 @@ def fetch_func_area():
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)  
 
-    cursor.execute("SELECT area_id, program_id, name FROM `functional-area`")
+    cursor.execute("SELECT `functional-area`.area_id, `functional-area`.name, program.program_name FROM `functional-area` JOIN program ON `functional-area`.program_id = program.program_id ORDER BY `functional-area`.area_id")
     func_area = cursor.fetchall()
 
     cursor.close()

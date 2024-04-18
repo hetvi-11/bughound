@@ -135,7 +135,7 @@
         <thead>
           <tr>
             <th>Area ID</th>
-            <th>Program ID</th>
+            <th>Program name</th>
             <th>Functional-Area</th>
             <th>Edit</th>
             <th>Delete</th>
@@ -145,7 +145,7 @@
         {% for area in func_area %}
           <tr>
             <td>{{ area['area_id'] }}</td>
-            <td>{{ area['program_id'] }}</td>
+            <td>{{ area['program_name'] }}</td>
             <td>{{ area['name'] }}</td>
             <td>
               <button

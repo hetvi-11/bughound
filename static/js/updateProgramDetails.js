@@ -1,6 +1,14 @@
-function updateProgramDetails() {
-  const programName = document.getElementById("program").value;
-  const encodedProgramName = encodeURIComponent(programName);
+document.addEventListener("DOMContentLoaded", function () {
+  // Check if an area and program_name are defined (from server-side rendering)
+  if (document.getElementById("program").value) {
+    updateProgramDetails(document.getElementById("program").value);
+  }
+});
+
+function updateProgramDetails(programName) {
+  const encodedProgramName = encodeURIComponent(
+    programName || document.getElementById("program").value
+  );
   fetch(`/get-program-details-by-name/${encodedProgramName}`)
     .then((response) => {
       if (response.ok) {
