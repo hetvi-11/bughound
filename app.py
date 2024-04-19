@@ -141,7 +141,7 @@ def adduser(user_id):
 def addprogram(program_id):
     if not session.get('logged_in'):
         return redirect(url_for('login'))
-    
+    print(program_id)
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
 
@@ -149,6 +149,13 @@ def addprogram(program_id):
         return submit_or_update_program(request.form, program_id)
     
     program = None if program_id is None else get_program_details(cursor, program_id)
+    if program:
+            program['version'] = program['versions'][0] if program.get('versions') else ''
+            program['releaseversion'] = program['releases'][0] if program.get('releases') else ''
+            if program.get('release-date') and isinstance(program['release-date'][0], date):
+                program['release_date'] = program['release-date'][0].strftime('%Y-%m-%d')
+                
+    print(program)
     cursor.close()
     conn.close()
 
@@ -313,16 +320,21 @@ def get_program_details(cursor, program_id):
     program = cursor.fetchone()
     if program:
         data = {
+            "program_id" : program['program_id'],
             "program_name": program['program_name'],
             "versions": [program['version']],
-            "releases": [program['releaseversion']]
+            "releases": [program['releaseversion']],
+            "release-date": [program['release_date']]
         }
     else:
         data = {
+            "program_id" : program['program_id'],
             "program_name": None,
             "versions": [],
-            "releases": []
+            "releases": [],
+            "release-date" : None
         }
+    print(data)
     return data
 
 @app.route('/get-program-details/<int:program_id>')
@@ -479,10 +491,10 @@ def submit_or_update_user(form, user_id=None):
     flash('User added successfully!' if user_id is None else 'User updated successfully!')
     return redirect(url_for('user'))
 
-def submit_or_update_program(form, program_id=None):
+def submit_or_update_program(form, program_id):
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
-    
+    print(program_id)
     data = (
         form.get('program-name'), form.get('version'), form.get('releaseversion'), form.get('release-date')
     )
@@ -781,6 +793,49 @@ def search_reports_result():
     cursor.close()
     
     return render_template('search_results.html', user_name=session.get('user_name'),second_results=second_results, report_types=report_types, severity_levels=severity_levels)
+
+@app.route('/searchdashboard')
+def search_dashboard():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    level = session.get('level', 0)
+    return render_template('searchdashboard.html', level=level, user_name=session.get('user_name'))
+
+@app.route('/searchprg')
+def search_program():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    
+    conn = mysql.connector.connect(**db_config)  
+    cursor = conn.cursor(dictionary=True)
+    
+    cursor.execute("SELECT DISTINCT program_name FROM program ORDER BY program_name")
+    programs = cursor.fetchall()
+    return render_template('searchbyprog.html', programs=programs, user_name=session.get('user_name'))
+
+@app.route('/searchprgresult')
+def search_program_result():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    program_name = request.args.get('program', default=None)
+    if program_name:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT p.program_id, fa.area_id, fa.name AS functional_area
+            FROM `functional-area` fa
+            JOIN program p ON fa.program_id = p.program_id
+            WHERE p.program_name = %s
+            ORDER BY fa.area_id
+        """, (program_name,))
+        areas = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+    else:
+        areas = [] 
+    return render_template('searchprgresults.html', areas=areas, user_name=session.get('user_name'))
 
 if __name__ == '__main__':
     app.run(debug=True)

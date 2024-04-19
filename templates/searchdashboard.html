@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bug Tracking Dashboard</title>
+    <title>Search Dashboard</title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -19,13 +19,61 @@
         overflow: hidden; 
       }
       .container {
-        max-width: 800px;
+        max-width: 1000px;
         margin: 0 auto;
         padding: 20px;
         background-color: #fff;
         border-radius: 10px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        
       }
+      
+      .user-info {
+        float: right;
+        margin-top: 10px;
+        margin-right: 20px;
+        color: #1976d2;
+      }
+      .username,
+      .logout-btn,
+      .home-btn , .below-btn {
+        background-color: #1976d2;
+        color: white;
+        width: 120px;
+        border: none;
+        padding: 10px ;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        font-size: 16px;
+      }
+
+      .below-btn {
+        background-color: #1976d2;
+        color: white;
+        width: 200px;
+        border: none;
+        padding: 10px ;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        font-size: 16px;
+
+      }
+      .username:hover,
+      .logout-btn:hover,
+      .home-btn:hover {
+        background-color: #1565c0;
+      }
+
+      .edit-btn , .delete-btn {
+        cursor: pointer;
+        color: #1976d2;
+        transition: color 0.3s ease;
+        background: none;
+     
+        border: none;
+        align-items: center;
+      }
+
       .dashboard-options {
         display: flex;
         flex-direction: column;
@@ -43,40 +91,17 @@
       .dashboard-options a:hover {
         background-color: #1565c0;
       }
-      
-
-      .user-info {
-        float: right;
-        margin-top: 10px;
-        margin-right: 20px;
-        color: #1976d2;
-      }
-      .username,
-      .logout-btn,
-      .home-btn {
-        background-color: #1976d2;
-        color: white;
-        width: 120px;
-        border: none;
-        padding: 10px ;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-        font-size: 16px;
-      }
-      .username:hover,
-      .logout-btn:hover,
-      .home-btn:hover {
-        background-color: #1565c0;
-      }
-      
+      .dashboard-options button {
+        margin-bottom: 10px; 
+    }
     </style>
   </head>
   <body>
     <header>
-      <h1>Bug Tracking Dashboard</h1>
+        <h1>Search Dashboard</h1>
       <div class="user-info">
         {% if session.logged_in %}
-
+        <button type="button" onclick=" homeAction()" class="home-btn">Home</a>
         <button class="username">{{ user_name }}</button>
         <button type="button" onclick=" logoutAction()" class="logout-btn">Logout</a>
         {% else %}
@@ -86,27 +111,11 @@
     </header>
     
     <div class="container">
-      <div class="flash-messages">
-        {% with messages = get_flashed_messages() %} {% if messages %}
-        <ul class="flashes">
-          {% for message in messages %}
-          <li>{{ message }}</li>
-          {% endfor %}
-        </ul>
-        {% endif %} {% endwith %}
-      </div>
+      
       <div class="dashboard-options">
-        <a href="{{ url_for('create_report') }}">Create New Bug Report</a>
-        {% if level > 1%}
-        <a href="{{ url_for('update_bug_report') }}"
-          >Update Existing Bug Report</a
-        >
-        {% endif %}
-        {% if level > 2%}
-        <a href="{{ url_for('search_dashboard') }}">Search</a>
-        <a href="{{ url_for('delete') }}">Delete Bug Report</a>
-        <a href="{{ url_for('subdashboard_page') }}">DB Maintenance</a>
-        {% endif %}
+                <button type="button" onclick="searchbugAction()"class="below-btn">Search Bug Reports</a>
+              <button type="button" onclick="searchprgAction()"class="below-btn">Search By Program</a>
+      
       </div>
     </div>
   </body>
@@ -114,5 +123,15 @@
   function logoutAction() {
       window.location.href = "{{ url_for('index') }}";
     }
+
+    function searchprgAction() {
+        window.location.href = "{{ url_for('search_program') }}";
+      }
+      function searchbugAction() {
+        window.location.href = "{{ url_for('search_reports') }}";
+      }
+      function homeAction() {
+        window.location.href = "{{ url_for('home') }}";
+      }
 </script>
 </html>

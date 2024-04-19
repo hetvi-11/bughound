@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Search by Program</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f2f2f2;
+      }
+      header {
+        background-color: #1976d2;
+        color: white;
+        padding: 20px;
+        text-align: center;
+        overflow: hidden;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      form {
+        padding: 20px;
+        border-radius: 5px;
+        box-sizing: border-box;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      select {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+        outline: none;
+      }
+      .search-btn {
+        background-color: #1976d2;
+        color: white;
+        border: none;
+        padding: 10px;
+        cursor: pointer;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+        width: 120px;
+        margin: 10px 340px;
+        padding: 10px 20px;
+      }
+      .search-btn:hover {
+        background-color: #1565c0;
+      }
+      .user-info {
+        float: right;
+        margin-top: 10px;
+        margin-right: 20px;
+        color: #1976d2;
+      }
+      .username,
+      .logout-btn,
+      .home-btn {
+        background-color: #1976d2;
+        color: white;
+        width: 120px;
+        border: none;
+        padding: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        font-size: 16px;
+      }
+      .username:hover,
+      .logout-btn:hover,
+      .home-btn:hover {
+        background-color: #1565c0;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Search by Program</h1>
+      <div class="user-info">
+        <button type="button" onclick="homeAction()" class="home-btn">
+          Home
+        </button>
+        <button class="username">{{ user_name }}</button>
+        <button type="button" onclick="logoutAction()" class="logout-btn">
+          Logout
+        </button>
+      </div>
+    </header>
+    <div class="container">
+        <form action="{{ url_for('search_program_result') }}" method="GET">
+        <label for="program">Search by Program:</label>
+        <select id="program" name="program">
+          {% for program in programs %}
+          <option value="{{ program.program_name }}">
+            {{ program.program_name }}
+          </option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="search-btn">Search</button>
+      </form>
+    </div>
+
+    <script>
+      function logoutAction() {
+        window.location.href = "{{ url_for('index') }}";
+      }
+
+      function homeAction() {
+        window.location.href = "{{ url_for('home') }}";
+      }
+    </script>
+  </body>
+</html>
