@@ -95,10 +95,6 @@
         color: #1976d2;
       }
 
-     
-      
-      
-
     </style>
   </head>
   <body>
@@ -106,6 +102,9 @@
       <h1>Functional-Area Maintenance</h1>
       <div class="user-info">
         {% if session.logged_in %}
+         <button type="button" onclick="location.href='{{ url_for('export_areas_ascii') }}';" class="home-btn">Export to ASCII</button>
+        <button type="button" onclick="location.href='{{ url_for('export_areas_xml') }}';" class="home-btn">Export to XML</button>
+
         <button type="button" onclick=" homeAction()" class="home-btn">Home</a>
         <button class="username">{{ user_name }}</button>
         <button type="button" onclick=" logoutAction()" class="logout-btn">Logout</a>

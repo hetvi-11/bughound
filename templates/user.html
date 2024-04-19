@@ -95,6 +95,9 @@
       <h1>User Maintenance</h1>
       <div class="user-info">
         {% if session.logged_in %}
+        <button type="button" onclick="location.href='{{ url_for('export_users_ascii') }}';" class="home-btn">Export to ASCII</button>
+        <button type="button" onclick="location.href='{{ url_for('export_users_xml') }}';" class="home-btn">Export to XML</button>
+
         <button type="button" onclick=" homeAction()" class="home-btn">Home</a>
             <button class="username">{{ user_name }}</button>
             <button type="button" onclick=" logoutAction()" class="logout-btn">Logout</a>
@@ -107,6 +110,7 @@
     <div class="button-group">
       <button type="button" onclick=" subdashAction()" class="below-btn">Back to Maintenance Tab</button>
       <button type="add" class="below-btn" onclick="adduserAction() ">Add User</button>
+     
  </div>
 
     <div class="container">

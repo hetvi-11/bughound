@@ -1,9 +1,13 @@
+import csv
 import datetime
+from io import StringIO
 import mysql.connector
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, make_response, render_template, request, redirect, url_for, flash, session
 from datetime import date
 from werkzeug.utils import secure_filename
 from flask import jsonify
+from xml.etree.ElementTree import Element, SubElement, tostring  # XML handling
+import xml.etree.ElementTree as ET 
 
 app = Flask(__name__)
 app.secret_key = 'secret'  
@@ -154,7 +158,7 @@ def addprogram(program_id):
             program['releaseversion'] = program['releases'][0] if program.get('releases') else ''
             if program.get('release-date') and isinstance(program['release-date'][0], date):
                 program['release_date'] = program['release-date'][0].strftime('%Y-%m-%d')
-                
+
     print(program)
     cursor.close()
     conn.close()
@@ -836,6 +840,102 @@ def search_program_result():
     else:
         areas = [] 
     return render_template('searchprgresults.html', areas=areas, user_name=session.get('user_name'))
+
+@app.route('/export_users_ascii')
+def export_users_ascii():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM users")
+    result = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    si = StringIO()
+    cw = csv.writer(si)
+    cw.writerow(result[0].keys())  # write headers
+    cw.writerows([item.values() for item in result])  # write data rows
+
+    output = make_response(si.getvalue())
+    output.headers["Content-Disposition"] = "attachment; filename=users.csv"
+    output.headers["Content-type"] = "text/csv"
+    return output
+
+@app.route('/export_areas_ascii')
+def export_areas_ascii():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM `functional-area`")
+    result = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    si = StringIO()
+    cw = csv.writer(si)
+    cw.writerow(result[0].keys())  # write headers
+    cw.writerows([item.values() for item in result])  # write data rows
+
+    output = make_response(si.getvalue())
+    output.headers["Content-Disposition"] = "attachment; filename=areas.csv"
+    output.headers["Content-type"] = "text/csv"
+    return output
+
+@app.route('/export_users_xml')
+def export_users_xml():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM users")
+    result = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    # Convert query result to XML
+    root = ET.Element("users")
+    for item in result:
+        user_elem = ET.SubElement(root, "user")
+        for key, val in item.items():
+            child = ET.SubElement(user_elem, key)
+            child.text = str(val)
+
+    xmlstr = ET.tostring(root, encoding='utf-8', method='xml')
+    output = make_response(xmlstr)
+    output.headers["Content-Disposition"] = "attachment; filename=users.xml"
+    output.headers["Content-type"] = "text/xml"
+    return output
+
+@app.route('/export_areas_xml')
+def export_areas_xml():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM `functional-area`")
+    result = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    # Convert query result to XML
+    root = ET.Element("areas")
+    for item in result:
+        area_elem = ET.SubElement(root, "area")
+        for key, val in item.items():
+            child = ET.SubElement(area_elem, key)
+            child.text = str(val)
+
+    xmlstr = ET.tostring(root, encoding='utf-8', method='xml')
+    output = make_response(xmlstr)
+    output.headers["Content-Disposition"] = "attachment; filename=areas.xml"
+    output.headers["Content-type"] = "text/xml"
+    return output
 
 if __name__ == '__main__':
     app.run(debug=True)
