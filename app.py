@@ -68,7 +68,6 @@ def signup():
         squery = "SELECT username FROM users "
         cursor.execute(squery)
         results = cursor.fetchall()
-        print(results)
 
         existing_user = [row[0] for row in results]
         if username in existing_user:
@@ -99,7 +98,7 @@ def create_report():
     level = session.get('level', 0)  
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT program_id, program_name FROM program")  
+    cursor.execute("SELECT MIN(program_id) as program_id, program_name FROM program GROUP BY program_name ORDER BY program_name")
     programs = cursor.fetchall()
     cursor.execute("SELECT username FROM users")
     users = cursor.fetchall() 
@@ -145,7 +144,6 @@ def adduser(user_id):
 def addprogram(program_id):
     if not session.get('logged_in'):
         return redirect(url_for('login'))
-    print(program_id)
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
 
@@ -159,7 +157,7 @@ def addprogram(program_id):
             if program.get('release-date') and isinstance(program['release-date'][0], date):
                 program['release_date'] = program['release-date'][0].strftime('%Y-%m-%d')
 
-    print(program)
+  
     cursor.close()
     conn.close()
 
@@ -198,7 +196,10 @@ def report(bug_id):
         return submit_or_update_report(request.form, bug_id)
 
     bug = None if bug_id is None else get_bug_details(cursor, bug_id)
-    programs, users, areas = fetch_lookups(cursor)
+    cursor.execute("SELECT MIN(program_id) as program_id, program_name FROM program GROUP BY program_name ORDER BY program_name")
+    programs = cursor.fetchall()
+    print(programs)
+    users, areas = fetch_lookups(cursor)
     report_types = [
         ('Coding Error', 'Coding Error'),
         ('Design Issue', 'Design Issue'),
@@ -244,9 +245,15 @@ def submit_or_update_report(form, bug_id=None):
     date_tested = form.get('tested-date') or None
     resolution_version = form.get('resolution-version') or None
 
+    program_name = form.get('program')
+    version = form.get('program-version')
+    releaseversion = form.get('program-release')
+    cursor.execute("SELECT program_id FROM program WHERE program_name = %s AND version=%s AND releaseversion=%s", (program_name,version, releaseversion))
+    program = cursor.fetchone()
+    program_id = program[0] if program else None
     # Base data list
     data = [
-        form.get('program'), form.get('bug_type'), form.get('severity'), form.get('problem-summary'),
+        program_id, form.get('bug_type'), form.get('severity'), form.get('problem-summary'),
         form.get('description'), '1' if form.get('reproducible') == 'on' else '0',
         form.get('suggested-fix'), form.get('reported-by'), report_date,
         form.get('status'), assigned_user, form.get('comments'), date_resolved, priority,
@@ -279,7 +286,7 @@ def submit_or_update_report(form, bug_id=None):
                 file_data = file.read() 
                 
                 d = [bug_id, filename, file_data]
-                print(d)
+               
                 sql = """INSERT INTO attachment (bug_id, file_name, data) VALUES (%s, %s, %s)"""
                 
                 try:
@@ -298,13 +305,11 @@ def submit_or_update_report(form, bug_id=None):
 
 
 def fetch_lookups(cursor):
-    cursor.execute("SELECT program_id, program_name FROM program")
-    programs = cursor.fetchall()
     cursor.execute("SELECT username FROM users")
     users = cursor.fetchall()
     cursor.execute("SELECT area_id, name FROM `functional-area`")
     areas = cursor.fetchall()
-    return programs, users, areas
+    return users, areas
 
 def get_bug_details(cursor, bug_id):
     cursor.execute("SELECT * FROM `bug-report` WHERE bug_id = %s", (bug_id,))
@@ -338,7 +343,7 @@ def get_program_details(cursor, program_id):
             "releases": [],
             "release-date" : None
         }
-    print(data)
+    
     return data
 
 @app.route('/get-program-details/<int:program_id>')
@@ -498,7 +503,7 @@ def submit_or_update_user(form, user_id=None):
 def submit_or_update_program(form, program_id):
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
-    print(program_id)
+    
     data = (
         form.get('program-name'), form.get('version'), form.get('releaseversion'), form.get('release-date')
     )
@@ -735,8 +740,6 @@ def search_reports_result():
     reported_date = request.form.get('reported-date')
     resolved_by = request.form.get('resolved-by')
     
-    print(reported_date)
-    print(resolution)
 
     cursor = conn.cursor()
 
@@ -746,12 +749,11 @@ def search_reports_result():
     if program:
         query += " AND program_id = %s"
         params = params + (program,)
-        print(params)
 
     if report_type:
         query += " AND bug_type = %s"
         params = params + (report_type,)
-        print(params)
+        
 
     if severity:
         query += " AND severity = %s"
@@ -789,11 +791,11 @@ def search_reports_result():
             query += " AND reported_by = %s"
             params = params + (resolved_by,)
 
-    print(params)
+   
     cursor.execute(query, params ) 
    
     second_results = cursor.fetchall()
-    print(second_results)
+    
     cursor.close()
     
     return render_template('search_results.html', user_name=session.get('user_name'),second_results=second_results, report_types=report_types, severity_levels=severity_levels)

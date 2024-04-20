@@ -132,15 +132,22 @@
         <h2>General Information</h2>
         <div class="form-section">
           <label for="program">Program:</label>
-          <select id="program" name="program" required>
+          <select id="program" name="program" required onchange="updateProgramDetails()">
             {% for program in programs %}
-            <option value="{{ program['program_id'] }}" {% if bug and bug.program_id == program['program_id'] %}selected{% endif %}>
+            <option value="{{ program['program_name'] }}" {% if bug and bug.program_id == program['program_id'] %}selected{% endif %}>
                 {{ program['program_name'] }}
             </option>
             {% endfor %}
           </select>
         </div>
-
+         <div class="form-group">
+                <label for="program-version">Program Version:</label>
+                <select id="program-version" name="program-version" required></select>
+            </div>
+            <div class="form-group">
+                <label for="program-release">Program Release:</label>
+                <select id="program-release" name="program-release" required></select>
+            </div>
         <div class="form-section">
           <label for="bug_type">Report Type:</label>
           <select id="bug_type" name="bug_type" required>
@@ -344,8 +351,8 @@
     </div>
   </body>
 
+  <script src="/static/js/updateProgramDetails.js"></script>
   <script>
-
   function logoutAction() {
       window.location.href = "{{ url_for('index') }}";
     }
