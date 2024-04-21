@@ -91,6 +91,7 @@
       <h1>All Bug Reports</h1>
       <div class="user-info">
         {% if session.logged_in %}
+        <button type="button" onclick=" searchAction()" class="home-btn">Back to search</button>
         <button type="button" onclick=" homeAction()"  class="home-btn">Home</button>
         <button class="username">{{ user_name }}</button>
         <button type="button" onclick=" logoutAction()" class="logout-btn">Logout</a>
@@ -145,6 +146,10 @@
   
       function homeAction() {
         window.location.href = "{{ url_for('home') }}";
+      }
+
+      function searchAction() {
+        window.location.href = "{{ url_for('search_reports') }}";
       }
   
       </script>
