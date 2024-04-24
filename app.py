@@ -712,20 +712,6 @@ def search_reports():
 
 @app.route('/search', methods=['POST'])
 def search_reports_result():
-    report_types = [
-        ('bug', 'Coding Error'),
-        ('issue', 'Design Issue'),
-        ('suggestion', 'Suggestion'),
-        ('documentation', 'Documentation'),
-        ('hardware', 'Hardware'),
-        ('query', 'Query')
-    ]
-
-    severity_levels = [
-        ('Minor', 'Minor'),
-        ('Serious', 'Serious'),
-        ('Fatal', 'Fatal')
-    ]
 
     conn = mysql.connector.connect(**db_config)
     program = request.form.get('program')
@@ -743,7 +729,12 @@ def search_reports_result():
 
     cursor = conn.cursor()
 
-    query = "SELECT * FROM `bug-report` WHERE 1=1"
+    query = """
+    SELECT br.*, p.program_name
+    FROM `bug-report` br
+    LEFT JOIN program p ON br.program_id = p.program_id
+    WHERE 1=1 AND br.status != 'closed'
+    """
     params = ()
 
     if program:
@@ -795,10 +786,9 @@ def search_reports_result():
     cursor.execute(query, params ) 
    
     second_results = cursor.fetchall()
-    
     cursor.close()
     
-    return render_template('search_results.html', user_name=session.get('user_name'),second_results=second_results, report_types=report_types, severity_levels=severity_levels)
+    return render_template('search_results.html', user_name=session.get('user_name'),second_results=second_results)
 
 @app.route('/searchdashboard')
 def search_dashboard():
@@ -818,6 +808,18 @@ def search_program():
     cursor.execute("SELECT DISTINCT program_name FROM program ORDER BY program_name")
     programs = cursor.fetchall()
     return render_template('searchbyprog.html', programs=programs, user_name=session.get('user_name'))
+
+@app.route('/searchclosedbugs')
+def search_closed_bugs():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    
+    conn = mysql.connector.connect(**db_config)  
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT * from `bug-report` where status='closed'")
+    bugs = cursor.fetchall()
+    return render_template('searchclosed_bugs.html', bugs=bugs, user_name=session.get('user_name'))
 
 @app.route('/searchprgresult')
 def search_program_result():

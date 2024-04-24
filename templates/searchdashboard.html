@@ -115,7 +115,7 @@
       <div class="dashboard-options">
                 <button type="button" onclick="searchbugAction()"class="below-btn">Search Bug Reports</a>
               <button type="button" onclick="searchprgAction()"class="below-btn">Search By Program</a>
-      
+                <button type="button" onclick="searchclosedbugAction()"class="below-btn">Search Closed Bugs</a>
       </div>
     </div>
   </body>
@@ -129,6 +129,9 @@
       }
       function searchbugAction() {
         window.location.href = "{{ url_for('search_reports') }}";
+      }
+      function searchclosedbugAction() {
+        window.location.href = "{{ url_for('search_closed_bugs') }}";
       }
       function homeAction() {
         window.location.href = "{{ url_for('home') }}";

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
-    <title>All Bug Reports</title>
+    <title>All Closed Bug Reports</title>
   
     <style>
       body {
@@ -88,7 +88,7 @@
   </head>
   <body>
     <header>
-      <h1>All Bug Reports</h1>
+      <h1>All Closed Bug Reports</h1>
       <div class="user-info">
         {% if session.logged_in %}
         <button type="button" onclick=" searchAction()" class="home-btn">Back to search</button>
@@ -106,19 +106,21 @@
         <thead>
           <tr>
             <th>Bug ID</th>
-            <th>Program Name</th>
             <th>Description</th>
+            <th>Assigned User</th>
             <th>Reported Date</th>
+            <th>Priority</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {% for bug in second_results %}
+          {% for bug in bugs %}
           <tr>
             <td>{{ bug[0] }}</td>
-            <td>{{ bug[21] }}</td>
             <td>{{ bug[1] }}</td>
+            <td>{{ bug[8] }}</td>
             <td>{{ bug[5] }}</td>
+            <td>{{ bug[11] }}</td>
             <td>
               <button
                 class="edit-btn"
@@ -145,7 +147,7 @@
       }
 
       function searchAction() {
-        window.location.href = "{{ url_for('search_reports') }}";
+        window.location.href = "{{ url_for('search_dashboard') }}";
       }
   
       </script>
