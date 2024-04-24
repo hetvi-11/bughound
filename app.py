@@ -1,3 +1,4 @@
+import base64
 import csv
 import datetime
 from io import StringIO
@@ -192,6 +193,24 @@ def report(bug_id):
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
     
+    if bug_id is not None:
+        print(bug_id)
+        print(type(bug_id))
+        try:
+            cursor.execute("SELECT attachment_id, file_name, data FROM attachment WHERE bug_id = %s" , (bug_id,))
+            print("query is working")
+        except Exception as e:
+            print("Failed to insert data:", e)
+            raise
+        result = cursor.fetchone()
+        if result is None:
+            file_name = ""
+            file_data_base64 = ""
+        else:
+            file_name = result['file_name'] 
+            data = result['data'] 
+            file_data_base64 = base64.b64encode(data).decode('utf-8')
+
     if request.method == 'POST':
         return submit_or_update_report(request.form, bug_id)
 
@@ -217,7 +236,7 @@ def report(bug_id):
     cursor.close()
     conn.close()
 
-    return render_template('report.html', bug=bug, programs=programs, users=users, areas=areas, level = level, report_types=report_types, severity_levels=severity_levels, user_name=session.get('user_name'))
+    return render_template('report.html', bug=bug, programs=programs, users=users, areas=areas, level = level, report_types=report_types, severity_levels=severity_levels, user_name=session.get('user_name'), file_data_base64=file_data_base64 , file_name=file_name)
 
 def save_attachment_to_database(bug_id, filename, data, cursor):
     sql = """
@@ -709,24 +728,9 @@ def search_reports():
     ]
     return render_template('search.html', level=level, user_name=session.get('user_name'), programs = programs, users = users, areas = areas, report_types=report_types, severity_levels=severity_levels)
 
-
 @app.route('/search', methods=['POST'])
 def search_reports_result():
-
     conn = mysql.connector.connect(**db_config)
-    program = request.form.get('program')
-    report_type = request.form.get('report-type')
-    severity = request.form.get('severity')
-    functional_area = request.form.get('functional-area')
-    assigned_to = request.form.get('assigned-to')
-    status = request.form.get('status')
-    priority = request.form.get('priority')
-    resolution = request.form.get('resolution')
-    reported_by = request.form.get('reported-by')
-    reported_date = request.form.get('reported-date')
-    resolved_by = request.form.get('resolved-by')
-    
-
     cursor = conn.cursor()
 
     query = """
@@ -735,60 +739,149 @@ def search_reports_result():
     LEFT JOIN program p ON br.program_id = p.program_id
     WHERE 1=1 AND br.status != 'closed'
     """
-    params = ()
+    params = []
 
+    program = request.form.get('program')
     if program:
-        query += " AND program_id = %s"
-        params = params + (program,)
+        query += " AND br.program_id = %s"
+        params.append(program)
 
+    report_type = request.form.get('report-type')
     if report_type:
-        query += " AND bug_type = %s"
-        params = params + (report_type,)
-        
+        query += " AND br.bug_type = %s"
+        params.append(report_type)
 
+    severity = request.form.get('severity')
     if severity:
-        query += " AND severity = %s"
-        params = params + (severity,)
+        query += " AND br.severity = %s"
+        params.append(severity)
 
+    functional_area = request.form.get('functional-area')
     if functional_area:
-        query += " AND area_id = %s"
-        params = params + (functional_area,)
+        query += " AND br.area_id = %s"
+        params.append(functional_area)
 
+    assigned_to = request.form.get('assigned-to')
     if assigned_to:
-            query += " AND assigned_user = %s"
-            params = params + (assigned_to,)
+        query += " AND br.assigned_user = %s"
+        params.append(assigned_to)
 
+    status = request.form.get('status')
     if status:
-            query += " AND status = %s"
-            params = params + (status,)
-        
+        query += " AND br.status = %s"
+        params.append(status)
+
+    priority = request.form.get('priority')
     if priority:
-            query += " AND priority = %s"
-            params = params + (priority,)
+        query += " AND br.priority = %s"
+        params.append(priority)
 
+    resolution = request.form.get('resolution')
     if resolution:
-            query += " AND resolution = %s"
-            params = params + (resolution,)
+        query += " AND br.resolution = %s"
+        params.append(resolution)
 
+    reported_by = request.form.get('reported-by')
     if reported_by:
-            query += " AND reported_by = %s"
-            params = params + (reported_by,)
-        
+        query += " AND br.reported_by = %s"
+        params.append(reported_by)
+
+    reported_date = request.form.get('reported-date')
     if reported_date:
-            query += " AND date_created = %s"
-            params = params + (reported_date,)
+        query += " AND br.date_created = %s"
+        params.append(reported_date)
 
+    resolved_by = request.form.get('resolved-by')
     if resolved_by:
-            query += " AND reported_by = %s"
-            params = params + (resolved_by,)
+        query += " AND br.resolved_by = %s"
+        params.append(resolved_by)
 
-   
-    cursor.execute(query, params ) 
-   
+    cursor.execute(query, tuple(params))
     second_results = cursor.fetchall()
     cursor.close()
+    conn.close()
+
+    return render_template('search_results.html', user_name=session.get('user_name'), second_results=second_results)
+
+# @app.route('/search', methods=['POST'])
+# def search_reports_result():
+
+#     conn = mysql.connector.connect(**db_config)
+#     program = request.form.get('program')
+#     report_type = request.form.get('report-type')
+#     severity = request.form.get('severity')
+#     functional_area = request.form.get('functional-area')
+#     assigned_to = request.form.get('assigned-to')
+#     status = request.form.get('status')
+#     priority = request.form.get('priority')
+#     resolution = request.form.get('resolution')
+#     reported_by = request.form.get('reported-by')
+#     reported_date = request.form.get('reported-date')
+#     resolved_by = request.form.get('resolved-by')
     
-    return render_template('search_results.html', user_name=session.get('user_name'),second_results=second_results)
+
+#     cursor = conn.cursor()
+
+#     query = """
+#     SELECT br.*, p.program_name
+#     FROM `bug-report` br
+#     LEFT JOIN program p ON br.program_id = p.program_id
+#     WHERE 1=1 AND br.status != 'closed'
+#     """
+#     params = []
+
+#     if program:
+#         query += " AND program_id = %s"
+#         params = params + (program,)
+
+#     if report_type:
+#         query += " AND bug_type = %s"
+#         params = params + (report_type,)
+        
+
+#     if severity:
+#         query += " AND severity = %s"
+#         params = params + (severity,)
+
+#     if functional_area:
+#         query += " AND area_id = %s"
+#         params = params + (functional_area,)
+
+#     if assigned_to:
+#             query += " AND assigned_user = %s"
+#             params = params + (assigned_to,)
+
+#     if status:
+#             query += " AND status = %s"
+#             params = params + (status,)
+        
+#     if priority:
+#             query += " AND priority = %s"
+#             params = params + (priority,)
+
+#     if resolution:
+#             query += " AND resolution = %s"
+#             params = params + (resolution,)
+
+#     if reported_by:
+#             query += " AND reported_by = %s"
+#             params = params + (reported_by,)
+        
+#     if reported_date:
+#             query += " AND date_created = %s"
+#             params = params + (reported_date,)
+
+#     if resolved_by:
+#             query += " AND reported_by = %s"
+#             params = params + (resolved_by,)
+
+   
+#     cursor.execute(query, params ) 
+   
+#     second_results = cursor.fetchall()
+#     cursor.close()
+    
+#     return render_template('search_results.html', user_name=session.get('user_name'),second_results=second_results)
 
 @app.route('/searchdashboard')
 def search_dashboard():

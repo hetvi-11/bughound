@@ -191,10 +191,18 @@
         </div>
 
         <div class="form-section">
-          <label for="attachments">Attachments:</label>
-          <input type="file" id="attachments" name="attachments" multiple />
-        </div>
 
+          <div class="form-section">
+            <label for="attachments">Attachments:</label>
+            <input type="file" id="attachments" name="attachments" multiple />
+          
+
+            <label for="file_name">{{ file_name }}</label>
+            {% if file_name %}
+            <button type="button" onclick="downloadFile('{{ file_data_base64 }}', '{{ file_name }}')" class="down-btn">Download Document</button>
+  {% endif %}
+            
+          </div>
         <div class="form-section">
           <label class="checkbox-label" for="reproducible">Reproducible</label>
           <input type="checkbox" id="reproducible" name="reproducible" {% if bug and bug.reproducible %}checked{% endif %} />
@@ -360,6 +368,44 @@
     function homeAction() {
       window.location.href = "{{ url_for('home') }}";
     }
+  function downloadFile(fileData, fileName) {
+      // Determine file extension
+      var fileExtension = fileName.split('.').pop().toLowerCase();
 
+      // Determine MIME type based on file extension
+      var mimeType;
+      switch (fileExtension) {
+          case 'txt':
+              mimeType = 'text/plain';
+              break;
+          case 'pdf':
+              mimeType = 'application/pdf';
+              break;
+          case 'png':
+              mimeType = 'image/png';
+              break;
+          case 'jpg':
+          case 'jpeg':
+              mimeType = 'image/jpeg';
+              break;
+          case 'gif':
+              mimeType = 'image/gif';
+              break;
+          default:
+              alert('Unsupported file extension: ' + fileExtension);
+              return; // Exit function if unsupported file extension
+      }
+
+      // Construct data URL
+      var dataUrl = 'data:' + mimeType + ';base64,' + fileData;
+
+      // Create a temporary link element
+      var link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = fileName;
+
+      // Trigger download
+      link.click();
+  }
     </script>
 </html>
